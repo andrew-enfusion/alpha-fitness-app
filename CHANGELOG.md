@@ -19,8 +19,10 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 - `2026-04-14 11:01:05 -04:00 | repo-docs | commit 2a11dea` Installed the Codex starter-pack documentation in the repository root and `docs/`.
 - `2026-04-14 11:01:05 -04:00 | agent-guidance | commit 2a11dea` Added `AGENTS.md` with the required session-start read order and repo-grounding workflow.
 - `2026-04-14 11:01:05 -04:00 | repo-readme | commit 2a11dea` Added a repository `README.md` describing the current documentation-first setup.
+- `2026-04-14 11:17:05 -04:00 | phase1-scaffold` Added the Android Phase 1 scaffold with Gradle build files, official wrapper artifacts, package layering, navigation shell, Hilt skeleton, Room shell, repository interfaces, shared wrappers, theme shell, and a basic unit test.
 
 ### Changed
 - `2026-04-14 11:05:09 -04:00 | audit-trail` Added timestamped changelog formatting rules and repo guidance so future changes remain easier to audit and revert.
 - `2026-04-14 11:01:05 -04:00 | startup-docs | commit 2a11dea` Updated `README_FIRST.md` and `CODEX_MASTER_PROMPT.md` to match the required read order, conditional doc loading rules, and Alpha Fitness App naming.
 - `2026-04-14 11:04:25 -04:00 | narrative-context | commit ed1dc80` Resolved the narrative-context rule conflict between the domain model and architecture guide by making narrative injection explicitly task-specific.
+- `2026-04-14 11:17:05 -04:00 | status-tracking` Updated the repository and implementation status docs to reflect that the Phase 1 skeleton exists while local build verification remains blocked on missing Java and Android SDK tooling.
