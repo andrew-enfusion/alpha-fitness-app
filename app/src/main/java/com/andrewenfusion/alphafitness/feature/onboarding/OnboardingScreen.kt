@@ -29,10 +29,6 @@ import com.andrewenfusion.alphafitness.domain.model.ExerciseLevel
 import com.andrewenfusion.alphafitness.domain.model.GoalType
 import com.andrewenfusion.alphafitness.domain.model.JobActivityLevel
 import com.andrewenfusion.alphafitness.domain.model.Sex
-import com.andrewenfusion.alphafitness.feature.onboarding.component.OnboardingChoiceGroup
-import com.andrewenfusion.alphafitness.feature.onboarding.component.OnboardingNumberField
-import com.andrewenfusion.alphafitness.feature.onboarding.component.OnboardingSectionCard
-import com.andrewenfusion.alphafitness.feature.onboarding.component.OnboardingStatusCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -191,6 +187,29 @@ fun OnboardingScreen(
                     )
                 }
 
+                if (uiState.calorieTarget != null) {
+                    item {
+                        OnboardingSectionCard(
+                            title = stringResource(id = R.string.onboarding_target_section),
+                            description = stringResource(id = R.string.onboarding_target_description),
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.onboarding_target_value,
+                                    uiState.calorieTarget,
+                                ),
+                                style = MaterialTheme.typography.displaySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.onboarding_target_formula_note),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+
                 if (uiState.error != null) {
                     item {
                         OnboardingStatusCard(
@@ -251,7 +270,6 @@ private fun sexLabelRes(value: Sex): Int =
     when (value) {
         Sex.FEMALE -> R.string.onboarding_sex_female
         Sex.MALE -> R.string.onboarding_sex_male
-        Sex.NON_BINARY -> R.string.onboarding_sex_non_binary
         Sex.UNSPECIFIED -> R.string.onboarding_option_unspecified
     }
 

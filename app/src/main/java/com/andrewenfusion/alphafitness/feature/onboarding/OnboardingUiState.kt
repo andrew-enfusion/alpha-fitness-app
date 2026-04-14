@@ -13,6 +13,7 @@ data class OnboardingUiState(
     val exerciseLevel: ExerciseLevel = ExerciseLevel.UNSPECIFIED,
     val jobActivityLevel: JobActivityLevel = JobActivityLevel.UNSPECIFIED,
     val goalType: GoalType = GoalType.UNSPECIFIED,
+    val calorieTarget: Int? = null,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val saveSucceeded: Boolean = false,

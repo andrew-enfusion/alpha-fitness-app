@@ -30,6 +30,7 @@ Optional AI usage only through repository-owned gateway paths.
 ### Onboarding rules
 - AI guides the user conversationally through age, sex, height, weight, exercise level, job activity, and primary goal.
 - Calorie target is computed deterministically by the app using Mifflin-St Jeor BMR + activity multiplier as the baseline.
+- The deterministic baseline currently supports male and female profile sex values only.
 - AI may adjust the baseline target up or down based on contextual factors not captured by the formula (e.g. highly physical job on top of heavy exercise, injury/recovery).
 - Any AI adjustment is explained conversationally so the user understands why their target differs from the raw formula output.
 - The final target stored is the AI-adjusted value, not the raw formula output.

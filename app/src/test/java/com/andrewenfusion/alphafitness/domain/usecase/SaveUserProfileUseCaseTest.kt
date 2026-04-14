@@ -2,7 +2,7 @@ package com.andrewenfusion.alphafitness.domain.usecase
 
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
-import com.andrewenfusion.alphafitness.core.config.OnboardingConfig
+import com.andrewenfusion.alphafitness.domain.engine.CalorieTargetCalculator
 import com.andrewenfusion.alphafitness.domain.model.ExerciseLevel
 import com.andrewenfusion.alphafitness.domain.model.GoalType
 import com.andrewenfusion.alphafitness.domain.model.JobActivityLevel
@@ -19,11 +19,15 @@ import org.junit.Test
 
 class SaveUserProfileUseCaseTest {
     @Test
-    fun usesPendingCalorieTargetForFirstSave() = runBlocking {
+    fun derivesDeterministicCalorieTargetForFirstSave() = runBlocking {
         val repository = FakeUserProfileRepository()
+        val deriveCalorieTargetUseCase = DeriveCalorieTargetUseCase(
+            calculator = CalorieTargetCalculator(),
+        )
         val useCase = SaveUserProfileUseCase(
             repository = repository,
             timeProvider = FakeTimeProvider(Instant.parse("2026-04-14T12:00:00Z")),
+            deriveCalorieTargetUseCase = deriveCalorieTargetUseCase,
         )
 
         useCase(
@@ -38,11 +42,11 @@ class SaveUserProfileUseCaseTest {
 
         val saved = repository.savedProfile
         assertNotNull(saved)
-        assertEquals(OnboardingConfig.PENDING_CALORIE_TARGET, saved?.calorieTarget)
+        assertEquals(2800, saved?.calorieTarget)
     }
 
     @Test
-    fun preservesCreatedAtAndExistingCalorieTargetWhenUpdating() = runBlocking {
+    fun preservesCreatedAtAndRecomputesCalorieTargetWhenUpdating() = runBlocking {
         val existing = UserProfile(
             age = 25,
             sex = Sex.FEMALE,
@@ -57,9 +61,13 @@ class SaveUserProfileUseCaseTest {
         )
         val repository = FakeUserProfileRepository(existing)
         val now = Instant.parse("2026-04-14T12:00:00Z")
+        val deriveCalorieTargetUseCase = DeriveCalorieTargetUseCase(
+            calculator = CalorieTargetCalculator(),
+        )
         val useCase = SaveUserProfileUseCase(
             repository = repository,
             timeProvider = FakeTimeProvider(now),
+            deriveCalorieTargetUseCase = deriveCalorieTargetUseCase,
         )
 
         useCase(
@@ -74,7 +82,7 @@ class SaveUserProfileUseCaseTest {
 
         val saved = repository.savedProfile
         assertEquals(existing.createdAt, saved?.createdAt)
-        assertEquals(existing.calorieTarget, saved?.calorieTarget)
+        assertEquals(2125, saved?.calorieTarget)
         assertEquals(now, saved?.updatedAt)
     }
 }

@@ -36,6 +36,7 @@ class OnboardingViewModel @Inject constructor(
                             isLoading = false,
                             saveSucceeded = false,
                             error = null,
+                            calorieTarget = null,
                         )
                     } else {
                         profile.toUiState(
@@ -142,6 +143,7 @@ class OnboardingViewModel @Inject constructor(
             exerciseLevel = exerciseLevel,
             jobActivityLevel = jobActivityLevel,
             goalType = goalType,
+            calorieTarget = calorieTarget.takeIf { it > 0 },
             isLoading = false,
             isSaving = isSaving,
             saveSucceeded = saveSucceeded,

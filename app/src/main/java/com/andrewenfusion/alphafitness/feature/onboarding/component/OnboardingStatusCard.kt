@@ -1,4 +1,4 @@
-package com.andrewenfusion.alphafitness.feature.onboarding.component
+package com.andrewenfusion.alphafitness.feature.onboarding
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
