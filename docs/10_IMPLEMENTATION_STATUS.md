@@ -20,6 +20,7 @@ Track what is complete, in progress, blocked, and deferred.
 - Current active implementation phase is Phase 1 app skeleton.
 - The next smallest valid task should continue Phase 1 by verifying the Android toolchain locally and tightening any build issues surfaced by the first real Gradle sync.
 - The previous narrative-context documentation conflict has been resolved and reflected in the architecture and domain docs.
+- Bug tracking now distinguishes open and resolved issues explicitly and requires timestamped activity for auditability.
 
 ## Rules
 - Update this file after completing meaningful tasks.

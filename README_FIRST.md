@@ -36,5 +36,11 @@ Before writing any code:
 - Every meaningful change should add a timestamped entry using local date and time.
 - Entries may use AI summaries, but they must stay specific enough to support audit review and targeted reverts.
 
+## Bug tracking rule
+- `docs/11_BUG_TRACKING.md` is part of the audit trail for defects and document conflicts.
+- Open bugs belong only under `Current open bugs`.
+- Resolved bugs belong under `Resolved bugs`.
+- Each bug entry should carry tracked and updated timestamps plus a timestamped activity log.
+
 ## Product summary
 Alpha Fitness App is a single-user, local-first Android app for personal calorie tracking with an AI-assisted nutrition workflow. Room remains the source of truth for structured data.
