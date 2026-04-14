@@ -15,6 +15,6 @@ This repository now contains the Phase 1 Android scaffold plus the reference arc
 ## Current state
 - GitHub remote is attached
 - Starter reference pack is installed
-- Phase 1 Android project skeleton is in place
+- Phase 1 Android project skeleton is in place and validated
 - Core, domain, data, feature, navigation, DI, Room, and theme shells are scaffolded
-- Local build verification is still pending because this environment does not currently expose Java or an Android SDK
+- Gradle configuration, debug assembly, and unit tests now pass with the installed Android Studio JDK and Android SDK

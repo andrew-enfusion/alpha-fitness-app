@@ -22,6 +22,7 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 - `2026-04-14 11:17:05 -04:00 | phase1-scaffold` Added the Android Phase 1 scaffold with Gradle build files, official wrapper artifacts, package layering, navigation shell, Hilt skeleton, Room shell, repository interfaces, shared wrappers, theme shell, and a basic unit test.
 
 ### Changed
+- `2026-04-14 12:17:28 -04:00 | phase1-validation` Validated the Android scaffold against the installed Android Studio toolchain, fixed AGP 9 built-in Kotlin compatibility issues, and confirmed `:app:assembleDebug` plus `:app:testDebugUnitTest` pass.
 - `2026-04-14 12:07:25 -04:00 | bug-audit` Reworked bug tracking so open and resolved issues are separated clearly and each bug record carries timestamped audit activity.
 - `2026-04-14 11:05:09 -04:00 | audit-trail` Added timestamped changelog formatting rules and repo guidance so future changes remain easier to audit and revert.
 - `2026-04-14 11:01:05 -04:00 | startup-docs | commit 2a11dea` Updated `README_FIRST.md` and `CODEX_MASTER_PROMPT.md` to match the required read order, conditional doc loading rules, and Alpha Fitness App naming.
