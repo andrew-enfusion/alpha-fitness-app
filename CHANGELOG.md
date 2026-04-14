@@ -14,3 +14,4 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 
 ### Changed
 - Updated `README_FIRST.md` and `CODEX_MASTER_PROMPT.md` to match the required read order, conditional doc loading rules, and Alpha Fitness App naming.
+- Resolved the narrative-context rule conflict between the domain model and architecture guide by making narrative injection explicitly task-specific.

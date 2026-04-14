@@ -113,7 +113,21 @@ Fields:
 - narrativeText: String (free-form AI-maintained narrative)
 - updatedAt: Instant
 
-Note: Three records maintained — one per period type. Updated when the corresponding summary assessment runs. User can view but not edit. Injected into every AI call.
+Note: Three records are maintained, one per period type. Updated when the corresponding summary assessment runs. User can view but not edit.
+
+## Narrative Context
+
+Narratives are structured summaries derived from user data such as meals, metrics, and observed patterns.
+
+Narratives are available for AI context injection, but they are not automatically included in every AI call.
+
+The decision to include narratives, and which narratives to include, is defined by `docs/02_ARCHITECTURE_GUIDE.md` and must follow task-specific context injection rules.
+
+Narratives should be included only when they are relevant to the current task, in order to avoid:
+- context bloat
+- degraded model performance
+- unnecessary token usage
+- inconsistent outputs
 
 ## ChatMessage
 Fields:

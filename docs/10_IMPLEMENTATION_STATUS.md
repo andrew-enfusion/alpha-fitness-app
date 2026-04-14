@@ -19,7 +19,7 @@ Track what is complete, in progress, blocked, and deferred.
 - Required repo startup docs and Codex session guidance are now present in the repository root.
 - Current active implementation phase is Phase 1 app skeleton.
 - The next smallest valid task should come from Phase 1 and respect the architecture boundaries in `docs/02_ARCHITECTURE_GUIDE.md`.
-- Broad implementation should pause until the open documentation conflict in `docs/11_BUG_TRACKING.md` is clarified.
+- The previous narrative-context documentation conflict has been resolved and reflected in the architecture and domain docs.
 
 ## Rules
 - Update this file after completing meaningful tasks.

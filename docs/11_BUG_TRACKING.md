@@ -50,5 +50,5 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 - ACTUAL BEHAVIOR: The docs give different rules for when narratives are injected.
 - ROOT CAUSE: The starter pack appears to carry an older domain-model note that was not updated when the architecture guide was tightened.
 - AFFECTED COMPONENTS: Documentation, AI gateway design, summary and meal interpretation flows
-- FIX STRATEGY: Clarify whether narratives are task-specific only, then update `docs/03_DOMAIN_MODEL.md` to match the approved rule before broad implementation work begins.
-- STATUS: Open
+- FIX STRATEGY: Update `docs/03_DOMAIN_MODEL.md` so narratives are available but task-specific only, and reinforce the same rule in `docs/02_ARCHITECTURE_GUIDE.md`.
+- STATUS: Resolved

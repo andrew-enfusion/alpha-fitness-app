@@ -112,6 +112,14 @@ Confidence scores must influence behavior:
 ## AI context injection rule
 Context injection is task-specific. Each task type defines exactly what gets injected. No blanket "inject everything" rule.
 
+### AI Context Injection Rule
+
+AI context must be assembled using task-specific rules.
+
+No data source - including narratives, chat history, metrics, or recent meals - may be automatically included in every AI request by default.
+
+All context included in an AI request must be explicitly justified by the current task.
+
 Meal interpretation (chat or card):
 - User profile
 - Today's meals so far
