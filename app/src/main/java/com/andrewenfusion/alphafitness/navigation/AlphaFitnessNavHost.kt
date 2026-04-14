@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.andrewenfusion.alphafitness.feature.home.HomeRoute
+import com.andrewenfusion.alphafitness.feature.onboarding.OnboardingRoute
 
 @Composable
 fun AlphaFitnessNavHost(
@@ -14,9 +15,12 @@ fun AlphaFitnessNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AlphaFitnessDestination.Home.route,
+        startDestination = AlphaFitnessDestination.Onboarding.route,
         modifier = modifier,
     ) {
+        composable(AlphaFitnessDestination.Onboarding.route) {
+            OnboardingRoute()
+        }
         composable(AlphaFitnessDestination.Home.route) {
             HomeRoute()
         }

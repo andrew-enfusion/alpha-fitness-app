@@ -20,6 +20,7 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 - `2026-04-14 11:01:05 -04:00 | agent-guidance | commit 2a11dea` Added `AGENTS.md` with the required session-start read order and repo-grounding workflow.
 - `2026-04-14 11:01:05 -04:00 | repo-readme | commit 2a11dea` Added a repository `README.md` describing the current documentation-first setup.
 - `2026-04-14 11:17:05 -04:00 | phase1-scaffold` Added the Android Phase 1 scaffold with Gradle build files, official wrapper artifacts, package layering, navigation shell, Hilt skeleton, Room shell, repository interfaces, shared wrappers, theme shell, and a basic unit test.
+- `2026-04-14 15:50:26 -04:00 | phase2-onboarding` Added the first deterministic Phase 2 onboarding/profile slice with Room-backed `UserProfile` persistence, onboarding state and save use case wiring, a navigation-backed onboarding screen shell, reusable onboarding UI components, and a baseline unit test for profile-save behavior.
 
 ### Changed
 - `2026-04-14 12:17:28 -04:00 | phase1-validation` Validated the Android scaffold against the installed Android Studio toolchain, fixed AGP 9 built-in Kotlin compatibility issues, and confirmed `:app:assembleDebug` plus `:app:testDebugUnitTest` pass.
@@ -28,3 +29,4 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 - `2026-04-14 11:01:05 -04:00 | startup-docs | commit 2a11dea` Updated `README_FIRST.md` and `CODEX_MASTER_PROMPT.md` to match the required read order, conditional doc loading rules, and Alpha Fitness App naming.
 - `2026-04-14 11:04:25 -04:00 | narrative-context | commit ed1dc80` Resolved the narrative-context rule conflict between the domain model and architecture guide by making narrative injection explicitly task-specific.
 - `2026-04-14 11:17:05 -04:00 | status-tracking` Updated the repository and implementation status docs to reflect that the Phase 1 skeleton exists while local build verification remains blocked on missing Java and Android SDK tooling.
+- `2026-04-14 15:50:26 -04:00 | onboarding-design` Updated the shared design-system shell to a blue-and-white palette with rounded shapes and spacing tokens, removed generated Gradle daemon noise from version control, and verified the Phase 2 slice with daemon-safe Gradle commands after Kotlin daemon cache instability.

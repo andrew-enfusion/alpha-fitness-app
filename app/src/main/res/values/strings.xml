@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Alpha Fitness App</string>
+    <string name="onboarding_title">Profile Setup</string>
+    <string name="onboarding_subtitle">Local onboarding shell</string>
+    <string name="onboarding_phase_badge">Phase 2 profile foundation</string>
+    <string name="onboarding_intro_title">Build a strong profile before calorie logic kicks in.</string>
+    <string name="onboarding_intro_body">This first onboarding slice captures the core profile inputs we need for later deterministic target calculation and AI-assisted flows, without pulling those features into scope early.</string>
+    <string name="onboarding_helper_message">This slice captures and saves the local onboarding profile only. Calorie-target derivation and AI guidance are deferred to later Phase 2 work.</string>
+    <string name="onboarding_measurements_section">Core profile details</string>
+    <string name="onboarding_measurements_description">Use consistent units so the saved profile is ready for the next deterministic Phase 2 slice.</string>
+    <string name="onboarding_age_label">Age</string>
+    <string name="onboarding_height_label">Height (cm)</string>
+    <string name="onboarding_weight_label">Weight (kg)</string>
+    <string name="onboarding_sex_label">Sex</string>
+    <string name="onboarding_exercise_label">Exercise level</string>
+    <string name="onboarding_job_activity_label">Job activity level</string>
+    <string name="onboarding_goal_label">Primary goal</string>
+    <string name="onboarding_action_section">Save this local profile</string>
+    <string name="onboarding_action_description">This saves the current onboarding data to Room and keeps the flow ready for the next targeted Phase 2 task.</string>
+    <string name="onboarding_save_label">Save profile locally</string>
+    <string name="onboarding_saving_label">Saving...</string>
+    <string name="onboarding_saved_message">Profile saved locally. Calorie-target derivation is deferred to a later Phase 2 slice.</string>
+    <string name="onboarding_invalid_numeric_message">Enter valid numeric values for age, height, and weight before saving.</string>
+    <string name="onboarding_option_unspecified">Unspecified</string>
+    <string name="onboarding_sex_female">Female</string>
+    <string name="onboarding_sex_male">Male</string>
+    <string name="onboarding_sex_non_binary">Non-binary</string>
+    <string name="onboarding_exercise_low">Low</string>
+    <string name="onboarding_exercise_moderate">Moderate</string>
+    <string name="onboarding_exercise_high">High</string>
+    <string name="onboarding_exercise_athlete">Athlete</string>
+    <string name="onboarding_job_sedentary">Sedentary</string>
+    <string name="onboarding_job_light">Light</string>
+    <string name="onboarding_job_active">Active</string>
+    <string name="onboarding_job_very_active">Very active</string>
+    <string name="onboarding_goal_lose">Lose weight</string>
+    <string name="onboarding_goal_maintain">Maintain</string>
+    <string name="onboarding_goal_gain">Gain weight</string>
 </resources>

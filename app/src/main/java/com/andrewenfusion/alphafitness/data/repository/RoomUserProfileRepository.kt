@@ -18,6 +18,11 @@ class RoomUserProfileRepository @Inject constructor(
     private val userProfileDao: UserProfileDao,
     private val dispatchers: AppDispatchers,
 ) : UserProfileRepository {
+    override suspend fun getUserProfile(userId: String): UserProfile? =
+        withContext(dispatchers.io) {
+            userProfileDao.getById(userId)?.toDomain()
+        }
+
     override fun observeUserProfile(userId: String): Flow<UserProfile?> =
         userProfileDao
             .observeById(userId)

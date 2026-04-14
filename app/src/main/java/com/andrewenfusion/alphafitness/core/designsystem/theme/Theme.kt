@@ -7,31 +7,40 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColors = lightColorScheme(
-    primary = Forest,
-    secondary = Sage,
-    tertiary = Ember,
-    background = Sand,
-    surface = Mist,
-    onPrimary = Sand,
-    onSecondary = Sand,
-    onBackground = Slate,
-    onSurface = Slate,
+    primary = Blue700,
+    secondary = Blue500,
+    tertiary = SuccessBlue,
+    background = Cloud,
+    surface = White,
+    surfaceVariant = Blue100,
+    onPrimary = White,
+    onSecondary = White,
+    onBackground = Ink,
+    onSurface = Ink,
+    onSurfaceVariant = Blue900,
+    error = ErrorRed,
+    onError = White,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Sage,
-    secondary = Forest,
-    tertiary = Ember,
-    background = Slate,
+    primary = Blue200,
+    secondary = Blue500,
+    tertiary = SuccessBlue,
+    background = Blue900,
     surface = ColorTokens.DarkSurface,
-    onPrimary = Slate,
-    onSecondary = Sand,
-    onBackground = Sand,
-    onSurface = Sand,
+    surfaceVariant = ColorTokens.DarkSurfaceVariant,
+    onPrimary = Blue900,
+    onSecondary = White,
+    onBackground = White,
+    onSurface = White,
+    onSurfaceVariant = Blue100,
+    error = ErrorRed,
+    onError = White,
 )
 
 private object ColorTokens {
-    val DarkSurface = androidx.compose.ui.graphics.Color(0xFF1E2D2F)
+    val DarkSurface = androidx.compose.ui.graphics.Color(0xFF12304A)
+    val DarkSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF1A446A)
 }
 
 @Composable
@@ -42,6 +51,7 @@ fun AlphaFitnessTheme(
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
         typography = AlphaFitnessTypography,
+        shapes = AlphaFitnessShapes,
         content = content,
     )
 }

@@ -5,6 +5,8 @@ import com.andrewenfusion.alphafitness.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
 interface UserProfileRepository {
+    suspend fun getUserProfile(userId: String = UserProfile.LOCAL_USER_ID): UserProfile?
+
     fun observeUserProfile(userId: String = UserProfile.LOCAL_USER_ID): Flow<UserProfile?>
 
     suspend fun upsertUserProfile(profile: UserProfile): AppResult<Unit>
