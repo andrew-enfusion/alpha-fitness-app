@@ -31,5 +31,10 @@ Before writing any code:
 - determine the next smallest valid task
 - summarize the plan before making changes
 
+## Changelog rule
+- `CHANGELOG.md` is part of the audit trail for this repo.
+- Every meaningful change should add a timestamped entry using local date and time.
+- Entries may use AI summaries, but they must stay specific enough to support audit review and targeted reverts.
+
 ## Product summary
 Alpha Fitness App is a single-user, local-first Android app for personal calorie tracking with an AI-assisted nutrition workflow. Room remains the source of truth for structured data.

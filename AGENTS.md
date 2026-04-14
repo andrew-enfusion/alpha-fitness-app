@@ -21,6 +21,13 @@ Before writing any code, always inspect the repository structure and read the re
 - Read `docs/07_PHOTO_PIPELINE.md` only when the current roadmap phase requires photo logging work.
 - Read `docs/12_AI_MEAL_CARD.md` only when the current task touches the AI-assisted meal card flow or Phase 4 planning.
 
+## Changelog and audit rule
+- Update `CHANGELOG.md` after every meaningful change.
+- Each changelog entry must include a local date and time in `YYYY-MM-DD HH:MM:SS +/-HH:MM` format.
+- Each changelog entry should include a short scope label and a concise audit-friendly summary.
+- AI summaries are allowed if they remain specific and useful for future reverts or audits.
+- The changelog update should ship in the same commit as the change whenever practical.
+
 ## Default session-start prompt
 Read `README_FIRST.md`, `CODEX_MASTER_PROMPT.md`, and all required docs in the documented order.
 
@@ -31,6 +38,7 @@ Use `docs/08_IMPLEMENTATION_ROADMAP.md`, `docs/09_NEXT_STEP_PROTOCOL.md`, and `d
 Implement only the next smallest complete slice. Do not jump ahead in the roadmap. Do not add future-phase features early.
 
 After meaningful progress, update `docs/10_IMPLEMENTATION_STATUS.md`.
+Also update `CHANGELOG.md` with timestamped audit entries for the work completed.
 
 If you discover a bug, architecture gap, or document conflict, log it in `docs/11_BUG_TRACKING.md` and stop for clarification before broad expansion.
 

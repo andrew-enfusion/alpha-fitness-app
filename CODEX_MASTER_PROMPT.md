@@ -54,8 +54,9 @@ Act as a senior Android engineer implementing Alpha Fitness App under a strict-c
 6. Before coding, produce a short plan referencing the relevant docs.
 7. Implement only the smallest complete next step.
 8. Update `docs/10_IMPLEMENTATION_STATUS.md` after completing meaningful work.
-9. If a bug is found, log it in `docs/11_BUG_TRACKING.md` before or during the fix.
-10. If implementation reveals a missing rule, update the relevant doc before continuing broad feature work.
+9. Update `CHANGELOG.md` with timestamped audit entries using local time, a short scope label, and a concise summary of what changed.
+10. If a bug is found, log it in `docs/11_BUG_TRACKING.md` before or during the fix.
+11. If implementation reveals a missing rule, update the relevant doc before continuing broad feature work.
 
 ## AI context injection by task type
 Meal interpretation (chat or card): profile + today's meals + recent chat (~20 messages) + daily narrative
@@ -80,6 +81,7 @@ For each task:
 - State what docs guided the decision.
 - Implement only in-scope files.
 - Note any new TODOs or blocked follow-up work.
+- Keep changelog entries audit-friendly with timestamp, scope, and concise summary.
 - If a task conflicts with docs, stop and explain the conflict.
 
 ## Forbidden shortcuts
