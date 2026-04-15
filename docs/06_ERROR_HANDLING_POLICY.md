@@ -22,6 +22,7 @@ When AI fails:
 - preserve user input draft if possible
 - offer retry and manual entry fallback
 - show clear user-facing explanation
+- for onboarding guidance refresh, preserve the saved deterministic baseline profile and keep the previous persisted guidance if a new AI response cannot be validated or stored
 
 ## DB failure behavior
 If AI succeeds but local persistence fails:

@@ -60,7 +60,23 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 
 ## Current open bugs
 
-None recorded at this time.
+- BUG_ID: SEC-001
+- TITLE: Provider-backed onboarding guidance still lacks a production-safe mobile credential strategy
+- TYPE: Architecture violation
+- SEVERITY: High
+- DATE_TRACKED: 2026-04-15 08:33:25 -04:00
+- LAST_UPDATED: 2026-04-15 08:33:25 -04:00
+- RESOLVED_AT:
+- DESCRIPTION: The repo now supports a provider-backed onboarding guidance path through build-time OpenAI configuration for development, but embedding provider credentials in a production mobile build would expose the secret.
+- REPRODUCTION STEPS: Inspect the provider-backed onboarding implementation and the build-time configuration path added for `OPENAI_API_KEY`.
+- EXPECTED BEHAVIOR: Production AI requests should use a credential strategy that does not expose provider secrets in the shipped mobile app.
+- ACTUAL BEHAVIOR: The current implementation supports development-time provider testing only; production credential delivery remains unresolved.
+- ROOT CAUSE: The project is local-first and mobile-only so far, but production-safe AI provider access needs an explicit backend, proxy, or user-supplied credential strategy.
+- AFFECTED COMPONENTS: Phase 2 onboarding AI guidance, build configuration, production release readiness
+- FIX STRATEGY: Keep the current provider path explicitly development-only, document the constraint, and decide on a production-safe credential strategy before treating provider-backed AI onboarding as release-ready.
+- STATUS: Open
+- ACTIVITY LOG:
+  - `2026-04-15 08:33:25 -04:00 | tracked` Logged the production credential-strategy gap while implementing the development provider-backed onboarding slice.
 
 ## Resolved bugs
 

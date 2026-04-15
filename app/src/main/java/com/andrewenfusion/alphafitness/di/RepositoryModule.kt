@@ -1,5 +1,6 @@
 package com.andrewenfusion.alphafitness.di
 
+import com.andrewenfusion.alphafitness.data.gateway.onboarding.ConfiguredOnboardingGuidanceGateway
 import com.andrewenfusion.alphafitness.data.gateway.onboarding.DevelopmentOnboardingGuidanceGateway
 import com.andrewenfusion.alphafitness.data.gateway.onboarding.OnboardingGuidanceGateway
 import com.andrewenfusion.alphafitness.data.repository.RoomNutritionGuidanceRepository
@@ -18,7 +19,7 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindOnboardingGuidanceGateway(
-        gateway: DevelopmentOnboardingGuidanceGateway,
+        gateway: ConfiguredOnboardingGuidanceGateway,
     ): OnboardingGuidanceGateway
 
     @Binds

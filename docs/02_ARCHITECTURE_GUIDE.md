@@ -26,6 +26,7 @@ Optional AI usage only through repository-owned gateway paths.
 - AI must return structured responses conforming to the action contract.
 - AI results must pass through validation, silent correction, and sanity checks before any review card is shown.
 - Review card is always the final gate before persistence. No value ever writes to Room without user confirmation.
+- Direct provider secrets must not ship in production mobile builds. Build-time provider configuration in this repo is development-only until a production credential strategy exists.
 
 ### Onboarding rules
 - AI guides the user conversationally through age, sex, height, weight, exercise level, job activity, and primary goal.

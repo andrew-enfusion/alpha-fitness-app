@@ -14,6 +14,7 @@ Completely malformed or unparseable responses are dropped. A pre-canned failure 
 contractVersion: 1
 
 ## Supported action types
+- DERIVE_ONBOARDING_GUIDANCE
 - LOG_MEAL
 - ASK_CLARIFICATION
 - SHOW_DAILY_SUMMARY
@@ -43,6 +44,34 @@ Silent correction rules for envelope fields:
 - confidence < 0.0 → clamped to 0.0
 - confidence > 1.0 → clamped to 1.0
 - missing contractVersion → treated as malformed, dropped
+
+---
+
+## DERIVE_ONBOARDING_GUIDANCE
+
+```kotlin
+val actionType: String                        // required, "DERIVE_ONBOARDING_GUIDANCE"
+val confidence: Float                         // required, 0.0–1.0
+val rationale: String                         // required
+val requiresReview: Boolean                   // required, always false
+val workingCalorieTarget: Int                 // required, must be > 0
+val calorieAdjustment: Int                    // required, working target minus deterministic baseline
+val suggestedProteinRange: String             // required
+val suggestedCarbRange: String                // required
+val suggestedFatRange: String                 // required
+val derivationExplanation: String             // required, conversational explanation for the user
+val notes: String?                            // nullable, implementation notes or caveats
+```
+
+Contract notes:
+- `workingCalorieTarget` maps to `NutritionGuidance.calorieTarget`.
+- `UserProfile.calorieTarget` remains the deterministic baseline and must never be overwritten by this action.
+- When no AI adjustment is needed, `workingCalorieTarget` should equal the deterministic baseline and `calorieAdjustment` should be `0`.
+
+Silent correction rules:
+- `confidence` out of range → clamped to `0.0–1.0`
+- `notes` missing → defaulted to `null`
+- `workingCalorieTarget <= 0` → treated as invalid and dropped as malformed for onboarding guidance flows
 
 ---
 

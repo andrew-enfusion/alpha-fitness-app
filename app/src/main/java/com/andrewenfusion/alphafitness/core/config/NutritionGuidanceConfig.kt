@@ -43,6 +43,12 @@ class NutritionGuidanceConfig @Inject constructor() {
 
     fun lowSedentaryFatLossAdjustmentCalories(): Int = -100
 
+    fun minimumWorkingTargetCalories(): Int = 1200
+
+    fun maximumWorkingTargetCalories(): Int = 5000
+
+    fun maximumAiAdjustmentMagnitudeCalories(): Int = 500
+
     fun formatMacroRange(
         calorieTarget: Int,
         lowerRatio: Float,
