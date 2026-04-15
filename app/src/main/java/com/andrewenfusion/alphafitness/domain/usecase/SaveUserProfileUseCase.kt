@@ -23,7 +23,7 @@ class SaveUserProfileUseCase @Inject constructor(
         exerciseLevel: ExerciseLevel,
         jobActivityLevel: JobActivityLevel,
         goalType: GoalType,
-    ): AppResult<Unit> {
+    ): AppResult<UserProfile> {
         val existing = repository.getUserProfile()
         val now = timeProvider.now()
         val derivedTarget = when (
@@ -55,6 +55,9 @@ class SaveUserProfileUseCase @Inject constructor(
             updatedAt = now,
         )
 
-        return repository.upsertUserProfile(profile)
+        return when (val result = repository.upsertUserProfile(profile)) {
+            is AppResult.Success -> AppResult.Success(profile)
+            is AppResult.Failure -> result
+        }
     }
 }

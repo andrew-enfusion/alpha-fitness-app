@@ -5,8 +5,8 @@
     <string name="onboarding_subtitle">Local onboarding shell</string>
     <string name="onboarding_phase_badge">Phase 2 profile foundation</string>
     <string name="onboarding_intro_title">Build a strong profile before calorie logic kicks in.</string>
-    <string name="onboarding_intro_body">This deterministic Phase 2 slice captures the profile inputs needed to compute a baseline calorie target in-app before any conversational or AI-assisted onboarding behavior is introduced.</string>
-    <string name="onboarding_helper_message">Your calorie target is now derived locally using Mifflin-St Jeor plus activity and goal adjustments. AI guidance remains deferred to a later Phase 2 slice.</string>
+    <string name="onboarding_intro_body">This Phase 2 flow captures the profile inputs needed to compute a deterministic calorie baseline in-app, then stores separate guidance metadata without letting the guidance layer overwrite the baseline target.</string>
+    <string name="onboarding_helper_message">Your calorie target is derived locally using Mifflin-St Jeor plus activity and goal adjustments. Guidance refreshes through the onboarding gateway, but the baseline target remains app-owned in this slice.</string>
     <string name="onboarding_measurements_section">Core profile details</string>
     <string name="onboarding_measurements_description">Use consistent units so the app can derive a stable baseline calorie target from this profile.</string>
     <string name="onboarding_age_label">Age</string>
@@ -26,6 +26,15 @@
     <string name="onboarding_target_description">This baseline is calculated by the app and stored on your profile. No AI adjustment is applied in this slice.</string>
     <string name="onboarding_target_value">%1$d kcal/day</string>
     <string name="onboarding_target_formula_note">Formula: Mifflin-St Jeor BMR, activity multiplier, and goal adjustment.</string>
+    <string name="onboarding_guidance_section">Saved onboarding guidance</string>
+    <string name="onboarding_guidance_description">This guidance is stored separately from your profile so the app can keep the deterministic baseline target auditable while layering explanation and macro framing on top.</string>
+    <string name="onboarding_guidance_loading">Refreshing guidance...</string>
+    <string name="onboarding_guidance_target_value">Guidance currently aligns with %1$d kcal/day</string>
+    <string name="onboarding_guidance_protein_label">Protein</string>
+    <string name="onboarding_guidance_carb_label">Carbs</string>
+    <string name="onboarding_guidance_fat_label">Fat</string>
+    <string name="onboarding_guidance_explanation_value">Why this fits: %1$s</string>
+    <string name="onboarding_guidance_notes_value">Notes: %1$s</string>
     <string name="onboarding_option_unspecified">Unspecified</string>
     <string name="onboarding_sex_female">Female</string>
     <string name="onboarding_sex_male">Male</string>

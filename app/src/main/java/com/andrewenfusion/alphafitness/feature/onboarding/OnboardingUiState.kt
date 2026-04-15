@@ -14,10 +14,18 @@ data class OnboardingUiState(
     val jobActivityLevel: JobActivityLevel = JobActivityLevel.UNSPECIFIED,
     val goalType: GoalType = GoalType.UNSPECIFIED,
     val calorieTarget: Int? = null,
+    val guidanceCalorieTarget: Int? = null,
+    val guidanceProteinRange: String? = null,
+    val guidanceCarbRange: String? = null,
+    val guidanceFatRange: String? = null,
+    val guidanceExplanation: String? = null,
+    val guidanceNotes: String? = null,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
+    val isRefreshingGuidance: Boolean = false,
     val saveSucceeded: Boolean = false,
     val error: OnboardingError? = null,
+    val guidanceError: String? = null,
 ) {
     val canSave: Boolean
         get() = age.isNotBlank() &&
@@ -27,5 +35,6 @@ data class OnboardingUiState(
             exerciseLevel != ExerciseLevel.UNSPECIFIED &&
             jobActivityLevel != JobActivityLevel.UNSPECIFIED &&
             goalType != GoalType.UNSPECIFIED &&
-            !isSaving
+            !isSaving &&
+            !isRefreshingGuidance
 }

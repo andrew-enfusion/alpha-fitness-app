@@ -210,6 +210,91 @@ fun OnboardingScreen(
                     }
                 }
 
+                if (
+                    uiState.isRefreshingGuidance ||
+                    uiState.guidanceExplanation != null ||
+                    uiState.guidanceError != null
+                ) {
+                    item {
+                        OnboardingSectionCard(
+                            title = stringResource(id = R.string.onboarding_guidance_section),
+                            description = stringResource(id = R.string.onboarding_guidance_description),
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
+                                if (uiState.isRefreshingGuidance) {
+                                    Text(
+                                        text = stringResource(id = R.string.onboarding_guidance_loading),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+
+                                uiState.guidanceCalorieTarget?.let { guidanceTarget ->
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.onboarding_guidance_target_value,
+                                            guidanceTarget,
+                                        ),
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+
+                                uiState.guidanceProteinRange?.let { proteinRange ->
+                                    OnboardingGuidanceRow(
+                                        label = stringResource(id = R.string.onboarding_guidance_protein_label),
+                                        value = proteinRange,
+                                    )
+                                }
+
+                                uiState.guidanceCarbRange?.let { carbRange ->
+                                    OnboardingGuidanceRow(
+                                        label = stringResource(id = R.string.onboarding_guidance_carb_label),
+                                        value = carbRange,
+                                    )
+                                }
+
+                                uiState.guidanceFatRange?.let { fatRange ->
+                                    OnboardingGuidanceRow(
+                                        label = stringResource(id = R.string.onboarding_guidance_fat_label),
+                                        value = fatRange,
+                                    )
+                                }
+
+                                uiState.guidanceExplanation?.let { explanation ->
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.onboarding_guidance_explanation_value,
+                                            explanation,
+                                        ),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+
+                                uiState.guidanceNotes?.let { notes ->
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.onboarding_guidance_notes_value,
+                                            notes,
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+
+                                uiState.guidanceError?.let { guidanceError ->
+                                    OnboardingStatusCard(
+                                        text = guidanceError,
+                                        containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.10f),
+                                        contentColor = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (uiState.error != null) {
                     item {
                         OnboardingStatusCard(

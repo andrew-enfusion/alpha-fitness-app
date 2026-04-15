@@ -6,7 +6,7 @@ Track what is complete, in progress, blocked, and deferred.
 ## Current status
 - Phase 0 documentation: starter pack installed in the repository and complete enough to begin implementation; continue evolving docs if gaps are found.
 - Phase 1 app skeleton: complete. The project structure, navigation shell, Room shell, Hilt skeleton, repository interfaces, shared wrappers, and theme shell are scaffolded and now verified through Gradle configuration, `:app:assembleDebug`, and `:app:testDebugUnitTest`.
-- Phase 2 onboarding and profile: in progress. The deterministic baseline slices are complete: local `UserProfile` persistence flows through Room, repository, and use-case layers; the onboarding state and screen shell are in place; and the app now derives and persists a baseline calorie target locally using deterministic profile inputs before any conversational or AI-authored behavior is introduced.
+- Phase 2 onboarding and profile: in progress. The deterministic baseline slices are complete, and the first narrow guidance slice is now in place: local `UserProfile` persistence flows through Room, repository, and use-case layers; the onboarding state and screen shell are in place; the app derives and persists a baseline calorie target locally using deterministic profile inputs; and onboarding now persists a separate `NutritionGuidance` record with saved explanation and macro framing while keeping the baseline target unchanged.
 - Phase 3 text meal logging core: not started.
 - Phase 4 AI-assisted meal card: not started.
 - Phase 5 history and editing: not started.
@@ -18,8 +18,9 @@ Track what is complete, in progress, blocked, and deferred.
 ## Notes
 - Required repo startup docs and Codex session guidance are now present in the repository root.
 - Current active implementation phase is still Phase 2 onboarding and profile.
-- The deterministic onboarding/profile persistence and baseline calorie-target derivation slices are implemented and verified locally with `:app:assembleDebug` and `:app:testDebugUnitTest` using the installed Android Studio JBR with daemon-safe verification settings.
-- The next smallest valid task is the first narrowly scoped AI-assisted onboarding slice: persist `NutritionGuidance` and introduce conversational explanation and adjustment only after the deterministic baseline remains the app-owned source of truth.
+- The deterministic onboarding/profile persistence, baseline calorie-target derivation, and first persisted guidance slice are implemented and verified locally with `:app:assembleDebug` and `:app:testDebugUnitTest` using the installed Android Studio JBR with daemon-safe verification settings.
+- `NutritionGuidance` is now stored separately from `UserProfile`, and the current development guidance gateway intentionally keeps the deterministic baseline target unchanged while adding explanation and macro guidance metadata.
+- The next smallest valid task is the provider-backed AI onboarding slice: replace the local development guidance gateway with a real structured AI guidance path, decide how AI-adjusted targets are persisted relative to the baseline, and preserve the same auditability boundaries.
 - The previous narrative-context documentation conflict has been resolved and reflected in the architecture and domain docs.
 - Bug tracking now distinguishes open and resolved issues explicitly and requires timestamped activity for auditability.
 

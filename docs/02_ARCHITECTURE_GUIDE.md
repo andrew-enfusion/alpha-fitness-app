@@ -34,6 +34,7 @@ Optional AI usage only through repository-owned gateway paths.
 - AI may adjust the baseline target up or down based on contextual factors not captured by the formula (e.g. highly physical job on top of heavy exercise, injury/recovery).
 - Any AI adjustment is explained conversationally so the user understands why their target differs from the raw formula output.
 - The final target stored is the AI-adjusted value, not the raw formula output.
+- `NutritionGuidance` is persisted separately from `UserProfile` so the app can keep the deterministic baseline path auditable while refreshing explanation and guidance metadata through the onboarding guidance gateway.
 - Macros are not explicit user goals in V1.
 - When profile is updated, the app recomputes the baseline and AI re-derives and re-explains the new target.
 - Historical meal records are never rewritten when profile changes.
