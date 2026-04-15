@@ -60,7 +60,23 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 
 ## Current open bugs
 
-None recorded at this time.
+- BUG_ID: ARCH-001
+- TITLE: Phase 2 guidance persistence rule conflicts with final target storage rule
+- TYPE: Architecture violation
+- SEVERITY: High
+- DATE_TRACKED: 2026-04-14 21:23:03 -04:00
+- LAST_UPDATED: 2026-04-14 21:23:03 -04:00
+- RESOLVED_AT:
+- DESCRIPTION: `docs/02_ARCHITECTURE_GUIDE.md` says "The final target stored is the AI-adjusted value, not the raw formula output," while `docs/10_IMPLEMENTATION_STATUS.md` says the next Phase 2 slice still needs a decision about how AI-adjusted targets are persisted relative to the deterministic baseline. The current implementation also persists the deterministic baseline on `UserProfile` and stores guidance separately, which matches one possible interpretation but not the strict wording of the architecture guide.
+- REPRODUCTION STEPS: Read the `Onboarding rules` section in `docs/02_ARCHITECTURE_GUIDE.md`, then compare it to the `next smallest valid task` note in `docs/10_IMPLEMENTATION_STATUS.md` and the current persisted onboarding implementation.
+- EXPECTED BEHAVIOR: The docs should state one consistent rule for whether AI-adjusted targets overwrite `UserProfile.calorieTarget`, live only in `NutritionGuidance`, or require both values with clearly named ownership.
+- ACTUAL BEHAVIOR: The docs leave the persistence contract ambiguous right before the provider-backed AI onboarding slice.
+- ROOT CAUSE: The repo evolved the separate `NutritionGuidance` path before the final storage contract for AI-adjusted targets was fully settled across the architecture and implementation-status docs.
+- AFFECTED COMPONENTS: Phase 2 onboarding guidance, `UserProfile`, `NutritionGuidance`, future AI onboarding gateway, auditability of calorie-target history
+- FIX STRATEGY: Pause Phase 2 AI onboarding implementation, choose one storage contract explicitly, then update the architecture and implementation-status docs before coding the provider-backed slice.
+- STATUS: Open
+- ACTIVITY LOG:
+  - `2026-04-14 21:23:03 -04:00 | tracked` Identified a cross-document conflict while grounding the next Phase 2 provider-backed onboarding slice.
 
 ## Resolved bugs
 

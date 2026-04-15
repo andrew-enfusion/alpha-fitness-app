@@ -20,7 +20,8 @@ Track what is complete, in progress, blocked, and deferred.
 - Current active implementation phase is still Phase 2 onboarding and profile.
 - The deterministic onboarding/profile persistence, baseline calorie-target derivation, and first persisted guidance slice are implemented and verified locally with `:app:assembleDebug` and `:app:testDebugUnitTest` using the installed Android Studio JBR with daemon-safe verification settings.
 - `NutritionGuidance` is now stored separately from `UserProfile`, and the current development guidance gateway intentionally keeps the deterministic baseline target unchanged while adding explanation and macro guidance metadata.
-- The next smallest valid task is the provider-backed AI onboarding slice: replace the local development guidance gateway with a real structured AI guidance path, decide how AI-adjusted targets are persisted relative to the baseline, and preserve the same auditability boundaries.
+- The provider-backed AI onboarding slice is currently blocked by `ARCH-001` because the docs do not yet agree on whether AI-adjusted targets overwrite `UserProfile.calorieTarget`, live only in `NutritionGuidance`, or require both values with explicit ownership.
+- The next smallest valid task after resolving `ARCH-001` is the provider-backed AI onboarding slice: replace the local development guidance gateway with a real structured AI guidance path using the chosen storage contract and preserve the same auditability boundaries.
 - The previous narrative-context documentation conflict has been resolved and reflected in the architecture and domain docs.
 - Bug tracking now distinguishes open and resolved issues explicitly and requires timestamped activity for auditability.
 
