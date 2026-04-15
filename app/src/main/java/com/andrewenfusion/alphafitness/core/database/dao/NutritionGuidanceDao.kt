@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NutritionGuidanceDao {
     @Query("SELECT * FROM nutrition_guidance WHERE userId = :userId LIMIT 1")
+    suspend fun getByUserId(userId: String): NutritionGuidanceEntity?
+
+    @Query("SELECT * FROM nutrition_guidance WHERE userId = :userId LIMIT 1")
     fun observeByUserId(userId: String): Flow<NutritionGuidanceEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

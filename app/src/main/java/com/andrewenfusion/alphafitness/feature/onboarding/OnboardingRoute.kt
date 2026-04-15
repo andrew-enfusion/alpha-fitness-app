@@ -20,5 +20,6 @@ fun OnboardingRoute(
         onJobActivityLevelSelected = viewModel::onJobActivityLevelSelected,
         onGoalTypeSelected = viewModel::onGoalTypeSelected,
         onSaveClicked = viewModel::onSaveClicked,
+        onResetWorkingTargetClicked = viewModel::onResetWorkingTargetClicked,
     )
 }

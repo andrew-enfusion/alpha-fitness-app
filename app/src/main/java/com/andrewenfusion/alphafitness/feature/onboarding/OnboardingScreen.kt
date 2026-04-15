@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -42,6 +43,7 @@ fun OnboardingScreen(
     onJobActivityLevelSelected: (JobActivityLevel) -> Unit,
     onGoalTypeSelected: (GoalType) -> Unit,
     onSaveClicked: () -> Unit,
+    onResetWorkingTargetClicked: () -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -206,6 +208,12 @@ fun OnboardingScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            uiState.guidanceCalorieTarget?.let { guidanceTarget ->
+                                OnboardingGuidanceRow(
+                                    label = stringResource(id = R.string.onboarding_guidance_current_target_label),
+                                    value = stringResource(id = R.string.onboarding_target_value, guidanceTarget),
+                                )
+                            }
                         }
                     }
                 }
@@ -237,6 +245,16 @@ fun OnboardingScreen(
                                         ),
                                         style = MaterialTheme.typography.titleLarge,
                                         color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+
+                                if (uiState.hasWorkingTargetOverride) {
+                                    OnboardingGuidanceRow(
+                                        label = stringResource(id = R.string.onboarding_guidance_delta_label),
+                                        value = guidanceDeltaText(
+                                            baselineTarget = uiState.calorieTarget ?: 0,
+                                            workingTarget = uiState.guidanceCalorieTarget ?: 0,
+                                        ),
                                     )
                                 }
 
@@ -289,6 +307,29 @@ fun OnboardingScreen(
                                         containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.10f),
                                         contentColor = MaterialTheme.colorScheme.error,
                                     )
+                                }
+
+                                uiState.guidanceStatus?.let { status ->
+                                    OnboardingStatusCard(
+                                        text = guidanceStatusText(status = status),
+                                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                        contentColor = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+
+                                if (uiState.canResetWorkingTarget) {
+                                    OutlinedButton(
+                                        onClick = onResetWorkingTargetClicked,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text(
+                                            text = if (uiState.isResettingGuidance) {
+                                                stringResource(id = R.string.onboarding_guidance_resetting_label)
+                                            } else {
+                                                stringResource(id = R.string.onboarding_guidance_reset_label)
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -343,6 +384,30 @@ fun OnboardingScreen(
         }
     }
 }
+
+@Composable
+private fun guidanceDeltaText(
+    baselineTarget: Int,
+    workingTarget: Int,
+): String {
+    val delta = workingTarget - baselineTarget
+    val signedDelta = if (delta >= 0) "+$delta" else delta.toString()
+    return stringResource(
+        id = R.string.onboarding_guidance_delta_value,
+        signedDelta,
+    )
+}
+
+@Composable
+private fun guidanceStatusText(status: OnboardingGuidanceStatus): String =
+    when (status) {
+        OnboardingGuidanceStatus.MatchesBaseline ->
+            stringResource(id = R.string.onboarding_guidance_status_matches_baseline)
+        OnboardingGuidanceStatus.AdjustedWorkingTarget ->
+            stringResource(id = R.string.onboarding_guidance_status_adjusted)
+        OnboardingGuidanceStatus.ResetToBaseline ->
+            stringResource(id = R.string.onboarding_guidance_status_reset)
+    }
 
 @Composable
 private fun onboardingErrorText(error: OnboardingError): String =

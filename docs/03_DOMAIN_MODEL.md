@@ -17,6 +17,10 @@ Fields:
 - createdAt: Instant
 - updatedAt: Instant
 
+Ownership note:
+- `calorieTarget` is the deterministic baseline target computed by the app.
+- It must remain auditable and must never be overwritten by AI-derived adjustments.
+
 ## NutritionGuidance
 Fields:
 - userId: String
@@ -27,6 +31,10 @@ Fields:
 - derivationExplanation: String (AI-generated explanation of how target was reached)
 - notes: String
 - generatedAt: Instant
+
+Ownership note:
+- `calorieTarget` is the current working target used by the app for progress tracking, metrics, and primary calorie-target UI.
+- It may equal the deterministic baseline when no adjustment exists, or differ from it when an AI or gateway-derived adjustment has been applied.
 
 ## FoodReference
 Fields:

@@ -33,8 +33,11 @@ Optional AI usage only through repository-owned gateway paths.
 - The deterministic baseline currently supports male and female profile sex values only.
 - AI may adjust the baseline target up or down based on contextual factors not captured by the formula (e.g. highly physical job on top of heavy exercise, injury/recovery).
 - Any AI adjustment is explained conversationally so the user understands why their target differs from the raw formula output.
-- The final target stored is the AI-adjusted value, not the raw formula output.
+- `UserProfile.calorieTarget` always stores the deterministic baseline target. AI must never overwrite this field.
+- `NutritionGuidance.calorieTarget` stores the AI-adjusted working target that the app uses for day-to-day progress tracking, metrics, and user-facing calorie-target UI.
+- When no AI adjustment has been made, `NutritionGuidance.calorieTarget` must equal `UserProfile.calorieTarget`.
 - `NutritionGuidance` is persisted separately from `UserProfile` so the app can keep the deterministic baseline path auditable while refreshing explanation and guidance metadata through the onboarding guidance gateway.
+- Resetting to baseline is allowed by copying `UserProfile.calorieTarget` back into `NutritionGuidance.calorieTarget`.
 - Macros are not explicit user goals in V1.
 - When profile is updated, the app recomputes the baseline and AI re-derives and re-explains the new target.
 - Historical meal records are never rewritten when profile changes.
@@ -68,7 +71,7 @@ Going over target is flagged in the UI according to the user's current goal type
 No scores or percentages anywhere.
 
 ## Profile update rule
-User profile is editable after onboarding. Changes trigger app-side recomputation of the baseline calorie target followed by AI re-derivation and conversational explanation. Historical meal records are not rewritten.
+User profile is editable after onboarding. Changes trigger app-side recomputation of the baseline calorie target in `UserProfile`, followed by AI re-derivation of the working target and conversational explanation in `NutritionGuidance`. Historical meal records are not rewritten.
 
 ## Offline rule
 When offline:

@@ -19,7 +19,7 @@ class DevelopmentOnboardingGuidanceGatewayTest {
     )
 
     @Test
-    fun keepsDeterministicBaselineTargetAndBuildsMacroRanges() = runBlocking {
+    fun keepsWorkingTargetEqualToBaselineWhenNoAdjustmentApplies() = runBlocking {
         val profile = UserProfile(
             age = 30,
             sex = Sex.MALE,
@@ -42,5 +42,29 @@ class DevelopmentOnboardingGuidanceGatewayTest {
         assertEquals("280-315 g/day", guidance.suggestedCarbRange)
         assertEquals("80-95 g/day", guidance.suggestedFatRange)
         assertTrue(guidance.derivationExplanation.contains("2800 kcal/day"))
+    }
+
+    @Test
+    fun appliesWorkingTargetAdjustmentForAthleteWithVeryActiveJob() = runBlocking {
+        val profile = UserProfile(
+            age = 30,
+            sex = Sex.MALE,
+            heightCm = 180f,
+            weightKg = 80f,
+            exerciseLevel = ExerciseLevel.ATHLETE,
+            jobActivityLevel = JobActivityLevel.VERY_ACTIVE,
+            goalType = GoalType.MAINTAIN,
+            calorieTarget = 2800,
+            createdAt = Instant.parse("2026-04-14T12:00:00Z"),
+            updatedAt = Instant.parse("2026-04-14T12:00:00Z"),
+        )
+
+        val result = gateway.deriveGuidance(profile)
+
+        assertTrue(result is AppResult.Success)
+        val guidance = (result as AppResult.Success).value
+        assertEquals(3050, guidance.calorieTarget)
+        assertEquals("190-230 g/day", guidance.suggestedProteinRange)
+        assertTrue(guidance.derivationExplanation.contains("+250 kcal/day"))
     }
 }

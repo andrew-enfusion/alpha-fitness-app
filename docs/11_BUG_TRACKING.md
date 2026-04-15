@@ -60,25 +60,28 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 
 ## Current open bugs
 
+None recorded at this time.
+
+## Resolved bugs
+
 - BUG_ID: ARCH-001
 - TITLE: Phase 2 guidance persistence rule conflicts with final target storage rule
 - TYPE: Architecture violation
 - SEVERITY: High
 - DATE_TRACKED: 2026-04-14 21:23:03 -04:00
-- LAST_UPDATED: 2026-04-14 21:23:03 -04:00
-- RESOLVED_AT:
-- DESCRIPTION: `docs/02_ARCHITECTURE_GUIDE.md` says "The final target stored is the AI-adjusted value, not the raw formula output," while `docs/10_IMPLEMENTATION_STATUS.md` says the next Phase 2 slice still needs a decision about how AI-adjusted targets are persisted relative to the deterministic baseline. The current implementation also persists the deterministic baseline on `UserProfile` and stores guidance separately, which matches one possible interpretation but not the strict wording of the architecture guide.
+- LAST_UPDATED: 2026-04-14 21:34:29 -04:00
+- RESOLVED_AT: 2026-04-14 21:34:29 -04:00
+- DESCRIPTION: `docs/02_ARCHITECTURE_GUIDE.md` said "The final target stored is the AI-adjusted value, not the raw formula output," while `docs/10_IMPLEMENTATION_STATUS.md` said the next Phase 2 slice still needed a decision about how AI-adjusted targets are persisted relative to the deterministic baseline. The current implementation also persisted the deterministic baseline on `UserProfile` and stored guidance separately, which matched one possible interpretation but not the strict wording of the architecture guide.
 - REPRODUCTION STEPS: Read the `Onboarding rules` section in `docs/02_ARCHITECTURE_GUIDE.md`, then compare it to the `next smallest valid task` note in `docs/10_IMPLEMENTATION_STATUS.md` and the current persisted onboarding implementation.
 - EXPECTED BEHAVIOR: The docs should state one consistent rule for whether AI-adjusted targets overwrite `UserProfile.calorieTarget`, live only in `NutritionGuidance`, or require both values with clearly named ownership.
-- ACTUAL BEHAVIOR: The docs leave the persistence contract ambiguous right before the provider-backed AI onboarding slice.
+- ACTUAL BEHAVIOR: The docs left the persistence contract ambiguous right before the provider-backed AI onboarding slice.
 - ROOT CAUSE: The repo evolved the separate `NutritionGuidance` path before the final storage contract for AI-adjusted targets was fully settled across the architecture and implementation-status docs.
 - AFFECTED COMPONENTS: Phase 2 onboarding guidance, `UserProfile`, `NutritionGuidance`, future AI onboarding gateway, auditability of calorie-target history
-- FIX STRATEGY: Pause Phase 2 AI onboarding implementation, choose one storage contract explicitly, then update the architecture and implementation-status docs before coding the provider-backed slice.
-- STATUS: Open
+- FIX STRATEGY: Adopt the explicit dual-target rule: keep `UserProfile.calorieTarget` as the deterministic baseline, keep `NutritionGuidance.calorieTarget` as the working target used by the app, and update the docs before continuing implementation.
+- STATUS: Resolved
 - ACTIVITY LOG:
   - `2026-04-14 21:23:03 -04:00 | tracked` Identified a cross-document conflict while grounding the next Phase 2 provider-backed onboarding slice.
-
-## Resolved bugs
+  - `2026-04-14 21:34:29 -04:00 | resolved` Adopted the explicit dual-target ownership rule, updated the architecture and domain docs, and implemented the onboarding baseline-versus-working-target flow plus reset-to-baseline support.
 
 - BUG_ID: DOC-001
 - TITLE: Narrative injection rule conflicts between domain model and architecture guide

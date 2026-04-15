@@ -12,6 +12,7 @@ import com.andrewenfusion.alphafitness.domain.model.UserProfile
 import com.andrewenfusion.alphafitness.domain.usecase.ObserveNutritionGuidanceUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.ObserveUserProfileUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.RefreshNutritionGuidanceUseCase
+import com.andrewenfusion.alphafitness.domain.usecase.ResetNutritionGuidanceToBaselineUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.SaveUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -27,13 +28,16 @@ class OnboardingViewModel @Inject constructor(
     observeNutritionGuidanceUseCase: ObserveNutritionGuidanceUseCase,
     private val saveUserProfileUseCase: SaveUserProfileUseCase,
     private val refreshNutritionGuidanceUseCase: RefreshNutritionGuidanceUseCase,
+    private val resetNutritionGuidanceToBaselineUseCase: ResetNutritionGuidanceToBaselineUseCase,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = mutableUiState.asStateFlow()
+    private var currentProfile: UserProfile? = null
 
     init {
         viewModelScope.launch {
             observeUserProfileUseCase().collect { profile ->
+                currentProfile = profile
                 mutableUiState.update { current ->
                     if (profile == null) {
                         current.copy(
@@ -48,12 +52,15 @@ class OnboardingViewModel @Inject constructor(
                             guidanceExplanation = null,
                             guidanceNotes = null,
                             guidanceError = null,
+                            guidanceStatus = null,
                             isRefreshingGuidance = false,
+                            isResettingGuidance = false,
                         )
                     } else {
                         profile.toUiState(
                             isSaving = current.isSaving,
                             isRefreshingGuidance = current.isRefreshingGuidance,
+                            isResettingGuidance = current.isResettingGuidance,
                             saveSucceeded = current.saveSucceeded,
                             error = current.error,
                             guidanceCalorieTarget = current.guidanceCalorieTarget,
@@ -63,6 +70,7 @@ class OnboardingViewModel @Inject constructor(
                             guidanceExplanation = current.guidanceExplanation,
                             guidanceNotes = current.guidanceNotes,
                             guidanceError = current.guidanceError,
+                            guidanceStatus = current.guidanceStatus,
                         )
                     }
                 }
@@ -87,31 +95,121 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun onAgeChanged(value: String) {
-        updateField { copy(age = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                age = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onHeightChanged(value: String) {
-        updateField { copy(heightCm = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                heightCm = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onWeightChanged(value: String) {
-        updateField { copy(weightKg = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                weightKg = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onSexSelected(value: Sex) {
-        updateField { copy(sex = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                sex = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onExerciseLevelSelected(value: ExerciseLevel) {
-        updateField { copy(exerciseLevel = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                exerciseLevel = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onJobActivityLevelSelected(value: JobActivityLevel) {
-        updateField { copy(jobActivityLevel = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                jobActivityLevel = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
     }
 
     fun onGoalTypeSelected(value: GoalType) {
-        updateField { copy(goalType = value, error = null, guidanceError = null, saveSucceeded = false) }
+        updateField {
+            copy(
+                goalType = value,
+                error = null,
+                guidanceError = null,
+                guidanceStatus = null,
+                saveSucceeded = false,
+            )
+        }
+    }
+
+    fun onResetWorkingTargetClicked() {
+        val profile = currentProfile ?: return
+
+        viewModelScope.launch {
+            mutableUiState.update {
+                it.copy(
+                    isResettingGuidance = true,
+                    guidanceError = null,
+                    guidanceStatus = null,
+                )
+            }
+
+            when (val result = resetNutritionGuidanceToBaselineUseCase(profile)) {
+                is AppResult.Success -> {
+                    mutableUiState.update {
+                        it.copy(
+                            isResettingGuidance = false,
+                            guidanceError = null,
+                            guidanceStatus = OnboardingGuidanceStatus.ResetToBaseline,
+                        )
+                    }
+                }
+                is AppResult.Failure -> {
+                    mutableUiState.update {
+                        it.copy(
+                            isResettingGuidance = false,
+                            guidanceError = result.error.message,
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun onSaveClicked() {
@@ -136,6 +234,7 @@ class OnboardingViewModel @Inject constructor(
                     isSaving = true,
                     error = null,
                     guidanceError = null,
+                    guidanceStatus = null,
                     saveSucceeded = false,
                 )
             }
@@ -166,6 +265,11 @@ class OnboardingViewModel @Inject constructor(
                                 it.copy(
                                     isRefreshingGuidance = false,
                                     guidanceError = null,
+                                    guidanceStatus = if (result.value.calorieTarget == guidanceResult.value.calorieTarget) {
+                                        OnboardingGuidanceStatus.MatchesBaseline
+                                    } else {
+                                        OnboardingGuidanceStatus.AdjustedWorkingTarget
+                                    },
                                 )
                             }
                         }
@@ -202,6 +306,7 @@ class OnboardingViewModel @Inject constructor(
     private fun UserProfile.toUiState(
         isSaving: Boolean,
         isRefreshingGuidance: Boolean,
+        isResettingGuidance: Boolean,
         saveSucceeded: Boolean,
         error: OnboardingError?,
         guidanceCalorieTarget: Int?,
@@ -211,6 +316,7 @@ class OnboardingViewModel @Inject constructor(
         guidanceExplanation: String?,
         guidanceNotes: String?,
         guidanceError: String?,
+        guidanceStatus: OnboardingGuidanceStatus?,
     ): OnboardingUiState =
         OnboardingUiState(
             age = age.toString(),
@@ -224,6 +330,7 @@ class OnboardingViewModel @Inject constructor(
             isLoading = false,
             isSaving = isSaving,
             isRefreshingGuidance = isRefreshingGuidance,
+            isResettingGuidance = isResettingGuidance,
             saveSucceeded = saveSucceeded,
             error = error,
             guidanceCalorieTarget = guidanceCalorieTarget,
@@ -233,6 +340,7 @@ class OnboardingViewModel @Inject constructor(
             guidanceExplanation = guidanceExplanation,
             guidanceNotes = guidanceNotes,
             guidanceError = guidanceError,
+            guidanceStatus = guidanceStatus,
         )
 
     private fun AppError.toOnboardingError(): OnboardingError = OnboardingError.Message(value = message)

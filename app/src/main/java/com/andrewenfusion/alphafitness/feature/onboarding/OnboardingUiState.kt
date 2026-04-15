@@ -23,10 +23,17 @@ data class OnboardingUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val isRefreshingGuidance: Boolean = false,
+    val isResettingGuidance: Boolean = false,
     val saveSucceeded: Boolean = false,
     val error: OnboardingError? = null,
     val guidanceError: String? = null,
+    val guidanceStatus: OnboardingGuidanceStatus? = null,
 ) {
+    val hasWorkingTargetOverride: Boolean
+        get() = calorieTarget != null &&
+            guidanceCalorieTarget != null &&
+            calorieTarget != guidanceCalorieTarget
+
     val canSave: Boolean
         get() = age.isNotBlank() &&
             heightCm.isNotBlank() &&
@@ -36,5 +43,12 @@ data class OnboardingUiState(
             jobActivityLevel != JobActivityLevel.UNSPECIFIED &&
             goalType != GoalType.UNSPECIFIED &&
             !isSaving &&
-            !isRefreshingGuidance
+            !isRefreshingGuidance &&
+            !isResettingGuidance
+
+    val canResetWorkingTarget: Boolean
+        get() = hasWorkingTargetOverride &&
+            !isSaving &&
+            !isRefreshingGuidance &&
+            !isResettingGuidance
 }

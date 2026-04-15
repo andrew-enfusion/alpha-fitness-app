@@ -9,7 +9,6 @@ import com.andrewenfusion.alphafitness.domain.model.NutritionGuidanceDraft
 import com.andrewenfusion.alphafitness.domain.model.UserProfile
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToInt
 
 @Singleton
 class DevelopmentOnboardingGuidanceGateway @Inject constructor(
@@ -17,35 +16,45 @@ class DevelopmentOnboardingGuidanceGateway @Inject constructor(
 ) : OnboardingGuidanceGateway {
     override suspend fun deriveGuidance(profile: UserProfile): AppResult<NutritionGuidanceDraft> {
         val split = config.macroSplit(profile.goalType)
+        val adjustment = computeWorkingTargetAdjustment(profile)
+        val workingTarget = profile.calorieTarget + adjustment.calorieDelta
 
         return AppResult.Success(
             NutritionGuidanceDraft(
-                calorieTarget = profile.calorieTarget,
-                suggestedProteinRange = formatMacroRange(
-                    calorieTarget = profile.calorieTarget,
+                calorieTarget = workingTarget,
+                suggestedProteinRange = config.formatMacroRange(
+                    calorieTarget = workingTarget,
                     lowerRatio = split.proteinLower,
                     upperRatio = split.proteinUpper,
                     caloriesPerGram = 4f,
                 ),
-                suggestedCarbRange = formatMacroRange(
-                    calorieTarget = profile.calorieTarget,
+                suggestedCarbRange = config.formatMacroRange(
+                    calorieTarget = workingTarget,
                     lowerRatio = split.carbLower,
                     upperRatio = split.carbUpper,
                     caloriesPerGram = 4f,
                 ),
-                suggestedFatRange = formatMacroRange(
-                    calorieTarget = profile.calorieTarget,
+                suggestedFatRange = config.formatMacroRange(
+                    calorieTarget = workingTarget,
                     lowerRatio = split.fatLower,
                     upperRatio = split.fatUpper,
                     caloriesPerGram = 9f,
                 ),
-                derivationExplanation = buildExplanation(profile),
-                notes = "This development guidance keeps your deterministic baseline target unchanged while the onboarding guidance gateway is still running through a local implementation.",
+                derivationExplanation = buildExplanation(
+                    profile = profile,
+                    workingTarget = workingTarget,
+                    adjustment = adjustment,
+                ),
+                notes = buildNotes(adjustment),
             ),
         )
     }
 
-    private fun buildExplanation(profile: UserProfile): String {
+    private fun buildExplanation(
+        profile: UserProfile,
+        workingTarget: Int,
+        adjustment: WorkingTargetAdjustment,
+    ): String {
         val goalText = when (profile.goalType) {
             GoalType.LOSE -> "a calorie deficit"
             GoalType.MAINTAIN -> "weight maintenance"
@@ -55,23 +64,58 @@ class DevelopmentOnboardingGuidanceGateway @Inject constructor(
         val activityText =
             "${profile.exerciseLevel.labelText()} exercise and ${profile.jobActivityLevel.labelText()} daily activity"
 
-        return "Your current baseline stays at ${profile.calorieTarget} kcal/day. This onboarding guidance uses your saved profile, Mifflin-St Jeor baseline, and $activityText to frame macro guidance around $goalText without overriding the app-derived target yet."
+        return if (adjustment.calorieDelta == 0) {
+            "Your working target currently matches the ${profile.calorieTarget} kcal/day deterministic baseline. This development guidance uses your saved profile, Mifflin-St Jeor baseline, and $activityText to frame macro guidance around $goalText without applying an additional adjustment yet."
+        } else {
+            "Your deterministic baseline remains ${profile.calorieTarget} kcal/day, while the current working target is $workingTarget kcal/day. This development guidance applies a ${signedDelta(adjustment.calorieDelta)} kcal/day adjustment to account for ${adjustment.reason} while framing macro guidance around $goalText."
+        }
     }
 
-    private fun formatMacroRange(
-        calorieTarget: Int,
-        lowerRatio: Float,
-        upperRatio: Float,
-        caloriesPerGram: Float,
-    ): String {
-        val lower = roundToNearestFive((calorieTarget * lowerRatio) / caloriesPerGram)
-        val upper = roundToNearestFive((calorieTarget * upperRatio) / caloriesPerGram)
-        return "$lower-$upper g/day"
-    }
+    private fun buildNotes(adjustment: WorkingTargetAdjustment): String =
+        if (adjustment.calorieDelta == 0) {
+            "The current development guidance gateway did not apply a working-target adjustment, so the app uses the deterministic baseline as both the baseline and working target."
+        } else {
+            "This development guidance gateway is simulating a future provider-backed adjustment. Resetting guidance to baseline will copy the deterministic baseline target back into the working target."
+        }
 
-    private fun roundToNearestFive(value: Float): Int =
-        (value / 5f).roundToInt() * 5
+    private fun computeWorkingTargetAdjustment(profile: UserProfile): WorkingTargetAdjustment =
+        when {
+            profile.exerciseLevel == ExerciseLevel.ATHLETE &&
+                profile.jobActivityLevel == JobActivityLevel.VERY_ACTIVE ->
+                WorkingTargetAdjustment(
+                    calorieDelta = config.athleteVeryActiveAdjustmentCalories(),
+                    reason = "the combination of athlete-level training and a very active daily workload",
+                )
+
+            profile.exerciseLevel == ExerciseLevel.HIGH &&
+                profile.jobActivityLevel == JobActivityLevel.VERY_ACTIVE ->
+                WorkingTargetAdjustment(
+                    calorieDelta = config.highVeryActiveAdjustmentCalories(),
+                    reason = "the combination of high training volume and a very active daily workload",
+                )
+
+            profile.goalType == GoalType.LOSE &&
+                profile.exerciseLevel == ExerciseLevel.LOW &&
+                profile.jobActivityLevel == JobActivityLevel.SEDENTARY ->
+                WorkingTargetAdjustment(
+                    calorieDelta = config.lowSedentaryFatLossAdjustmentCalories(),
+                    reason = "a conservative downward adjustment for a low-activity fat-loss profile",
+                )
+
+            else -> WorkingTargetAdjustment(
+                calorieDelta = 0,
+                reason = "no additional contextual adjustment",
+            )
+        }
+
+    private fun signedDelta(value: Int): String =
+        if (value >= 0) "+$value" else value.toString()
 }
+
+private data class WorkingTargetAdjustment(
+    val calorieDelta: Int,
+    val reason: String,
+)
 
 private fun ExerciseLevel.labelText(): String =
     when (this) {

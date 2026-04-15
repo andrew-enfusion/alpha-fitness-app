@@ -9,4 +9,6 @@ interface NutritionGuidanceRepository {
     fun observeNutritionGuidance(userId: String = UserProfile.LOCAL_USER_ID): Flow<NutritionGuidance?>
 
     suspend fun refreshNutritionGuidance(profile: UserProfile): AppResult<NutritionGuidance>
+
+    suspend fun resetWorkingTargetToBaseline(profile: UserProfile): AppResult<NutritionGuidance>
 }

@@ -3,6 +3,7 @@ package com.andrewenfusion.alphafitness.core.config
 import com.andrewenfusion.alphafitness.domain.model.GoalType
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.roundToInt
 
 @Singleton
 class NutritionGuidanceConfig @Inject constructor() {
@@ -35,6 +36,26 @@ class NutritionGuidanceConfig @Inject constructor() {
                 fatUpper = 0.30f,
             )
         }
+
+    fun athleteVeryActiveAdjustmentCalories(): Int = 250
+
+    fun highVeryActiveAdjustmentCalories(): Int = 150
+
+    fun lowSedentaryFatLossAdjustmentCalories(): Int = -100
+
+    fun formatMacroRange(
+        calorieTarget: Int,
+        lowerRatio: Float,
+        upperRatio: Float,
+        caloriesPerGram: Float,
+    ): String {
+        val lower = roundToNearestFive((calorieTarget * lowerRatio) / caloriesPerGram)
+        val upper = roundToNearestFive((calorieTarget * upperRatio) / caloriesPerGram)
+        return "$lower-$upper g/day"
+    }
+
+    private fun roundToNearestFive(value: Float): Int =
+        (value / 5f).roundToInt() * 5
 }
 
 data class MacroSplit(
