@@ -65,7 +65,7 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 - TYPE: Architecture violation
 - SEVERITY: High
 - DATE_TRACKED: 2026-04-15 08:33:25 -04:00
-- LAST_UPDATED: 2026-04-15 08:33:25 -04:00
+- LAST_UPDATED: 2026-04-17 09:09:52 -04:00
 - RESOLVED_AT:
 - DESCRIPTION: The repo now supports a provider-backed onboarding guidance path through build-time OpenAI configuration for development, but embedding provider credentials in a production mobile build would expose the secret.
 - REPRODUCTION STEPS: Inspect the provider-backed onboarding implementation and the build-time configuration path added for `OPENAI_API_KEY`.
@@ -77,6 +77,7 @@ Define bug logging, classification, prioritization, and architecture feedback ru
 - STATUS: Open
 - ACTIVITY LOG:
   - `2026-04-15 08:33:25 -04:00 | tracked` Logged the production credential-strategy gap while implementing the development provider-backed onboarding slice.
+  - `2026-04-17 09:09:52 -04:00 | phase-closeout` Confirmed Phase 2 can complete with this issue still open because the current limitation is development-only and not marked critical under the repo phase-completion rules.
 
 ## Resolved bugs
 

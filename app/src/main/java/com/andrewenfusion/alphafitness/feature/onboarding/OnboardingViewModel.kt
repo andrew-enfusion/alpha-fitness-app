@@ -212,6 +212,22 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun onRetryGuidanceClicked() {
+        val profile = currentProfile ?: return
+
+        viewModelScope.launch {
+            mutableUiState.update {
+                it.copy(
+                    isRefreshingGuidance = true,
+                    guidanceError = null,
+                    guidanceStatus = null,
+                )
+            }
+
+            refreshGuidance(profile)
+        }
+    }
+
     fun onSaveClicked() {
         val current = uiState.value
         val age = current.age.toIntOrNull()
@@ -259,29 +275,7 @@ class OnboardingViewModel @Inject constructor(
                         )
                     }
 
-                    when (val guidanceResult = refreshNutritionGuidanceUseCase(result.value)) {
-                        is AppResult.Success -> {
-                            mutableUiState.update {
-                                it.copy(
-                                    isRefreshingGuidance = false,
-                                    guidanceError = null,
-                                    guidanceStatus = if (result.value.calorieTarget == guidanceResult.value.calorieTarget) {
-                                        OnboardingGuidanceStatus.MatchesBaseline
-                                    } else {
-                                        OnboardingGuidanceStatus.AdjustedWorkingTarget
-                                    },
-                                )
-                            }
-                        }
-                        is AppResult.Failure -> {
-                            mutableUiState.update {
-                                it.copy(
-                                    isRefreshingGuidance = false,
-                                    guidanceError = guidanceResult.error.message,
-                                )
-                            }
-                        }
-                    }
+                    refreshGuidance(result.value)
                 }
                 is AppResult.Failure -> {
                     mutableUiState.update {
@@ -292,6 +286,32 @@ class OnboardingViewModel @Inject constructor(
                             error = result.error.toOnboardingError(),
                         )
                     }
+                }
+            }
+        }
+    }
+
+    private suspend fun refreshGuidance(profile: UserProfile) {
+        when (val guidanceResult = refreshNutritionGuidanceUseCase(profile)) {
+            is AppResult.Success -> {
+                mutableUiState.update {
+                    it.copy(
+                        isRefreshingGuidance = false,
+                        guidanceError = null,
+                        guidanceStatus = if (profile.calorieTarget == guidanceResult.value.calorieTarget) {
+                            OnboardingGuidanceStatus.MatchesBaseline
+                        } else {
+                            OnboardingGuidanceStatus.AdjustedWorkingTarget
+                        },
+                    )
+                }
+            }
+            is AppResult.Failure -> {
+                mutableUiState.update {
+                    it.copy(
+                        isRefreshingGuidance = false,
+                        guidanceError = guidanceResult.error.message,
+                    )
                 }
             }
         }

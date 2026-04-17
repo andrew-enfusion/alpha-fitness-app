@@ -51,4 +51,11 @@ data class OnboardingUiState(
             !isSaving &&
             !isRefreshingGuidance &&
             !isResettingGuidance
+
+    val canRetryGuidance: Boolean
+        get() = calorieTarget != null &&
+            guidanceError != null &&
+            !isSaving &&
+            !isRefreshingGuidance &&
+            !isResettingGuidance
 }

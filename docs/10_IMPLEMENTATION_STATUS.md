@@ -6,7 +6,7 @@ Track what is complete, in progress, blocked, and deferred.
 ## Current status
 - Phase 0 documentation: starter pack installed in the repository and complete enough to begin implementation; continue evolving docs if gaps are found.
 - Phase 1 app skeleton: complete. The project structure, navigation shell, Room shell, Hilt skeleton, repository interfaces, shared wrappers, and theme shell are scaffolded and now verified through Gradle configuration, `:app:assembleDebug`, and `:app:testDebugUnitTest`.
-- Phase 2 onboarding and profile: in progress. The deterministic baseline slices are complete, the dual-target guidance foundation is in place, and the provider-backed guidance path now exists: local `UserProfile` persistence flows through Room, repository, and use-case layers; the onboarding state and screen shell are in place; the app derives and persists a baseline calorie target locally using deterministic profile inputs; onboarding persists a separate `NutritionGuidance` record for the working target and explanation; the local guidance path supports baseline-vs-working-target differentiation plus reset-to-baseline behavior; and the onboarding guidance gateway now supports a structured OpenAI-backed path with validation and fallback to the development gateway when provider config is absent.
+- Phase 2 onboarding and profile: complete. The deterministic baseline slices are complete, the dual-target guidance foundation is in place, and the provider-backed guidance path now exists: local `UserProfile` persistence flows through Room, repository, and use-case layers; the onboarding state and screen shell are in place; the app derives and persists a baseline calorie target locally using deterministic profile inputs; onboarding persists a separate `NutritionGuidance` record for the working target and explanation; the local guidance path supports baseline-vs-working-target differentiation plus reset-to-baseline behavior; the onboarding guidance gateway supports a structured OpenAI-backed path with validation and fallback to the development gateway when provider config is absent; and the onboarding UI now exposes explicit retry plus an assistant-style explanation surface without broadening into Phase 3 chat.
 - Phase 3 text meal logging core: not started.
 - Phase 4 AI-assisted meal card: not started.
 - Phase 5 history and editing: not started.
@@ -17,13 +17,14 @@ Track what is complete, in progress, blocked, and deferred.
 
 ## Notes
 - Required repo startup docs and Codex session guidance are now present in the repository root.
-- Current active implementation phase is still Phase 2 onboarding and profile.
+- Current active implementation phase is now Phase 3 text meal logging core.
 - The deterministic onboarding/profile persistence, baseline calorie-target derivation, and first persisted guidance slice are implemented and verified locally with `:app:assembleDebug` and `:app:testDebugUnitTest` using the installed Android Studio JBR with daemon-safe verification settings.
 - `NutritionGuidance` is stored separately from `UserProfile`, and the repository now follows the explicit dual-target rule: `UserProfile.calorieTarget` is the deterministic baseline, while `NutritionGuidance.calorieTarget` is the working target used by the app.
 - The onboarding UI now exposes baseline versus working target ownership explicitly and supports resetting the working target back to the deterministic baseline without mutating the profile baseline.
 - The onboarding guidance gateway now supports a structured provider-backed OpenAI path using the Responses API plus structured outputs, centralized AI failure mapping, and development fallback when provider config is not present.
-- The next smallest valid task is a narrow AI-guided onboarding UX slice: add an explicit retry action for provider guidance refresh and present the explanation in a more assistant-like onboarding surface without broadening into a Phase 3 chat flow.
-- `SEC-001` remains open because a production-safe mobile credential strategy is not defined yet. The current provider-backed path is development-only for local testing.
+- The onboarding UI now includes an explicit retry path for assistant guidance refresh and a more assistant-like explanation surface, which completes the remaining Phase 2 UX work.
+- The next smallest valid task is the first Phase 3 slice: add the chat shell, chat UI state and `ViewModel`, and only the minimum routing needed to prepare for structured text meal logging.
+- `SEC-001` remains open because a production-safe mobile credential strategy is not defined yet. The current provider-backed path is development-only for local testing, but it is not marked critical and does not block Phase 2 completion under the current repo rules.
 - The previous narrative-context documentation conflict has been resolved and reflected in the architecture and domain docs.
 - Bug tracking now distinguishes open and resolved issues explicitly and requires timestamped activity for auditability.
 

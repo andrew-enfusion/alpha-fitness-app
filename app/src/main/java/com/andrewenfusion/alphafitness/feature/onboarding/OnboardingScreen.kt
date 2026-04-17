@@ -43,6 +43,7 @@ fun OnboardingScreen(
     onJobActivityLevelSelected: (JobActivityLevel) -> Unit,
     onGoalTypeSelected: (GoalType) -> Unit,
     onSaveClicked: () -> Unit,
+    onRetryGuidanceClicked: () -> Unit,
     onResetWorkingTargetClicked: () -> Unit,
 ) {
     Scaffold(
@@ -113,6 +114,15 @@ fun OnboardingScreen(
                             )
                         }
                     }
+                }
+
+                item {
+                    OnboardingAssistantCard(
+                        label = stringResource(id = R.string.onboarding_assistant_label),
+                        headline = assistantHeadline(uiState = uiState),
+                        message = assistantMessage(uiState = uiState),
+                        supportingText = assistantSupportingText(uiState = uiState),
+                    )
                 }
 
                 item {
@@ -317,6 +327,17 @@ fun OnboardingScreen(
                                     )
                                 }
 
+                                if (uiState.canRetryGuidance) {
+                                    OutlinedButton(
+                                        onClick = onRetryGuidanceClicked,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text(
+                                            text = stringResource(id = R.string.onboarding_guidance_retry_label),
+                                        )
+                                    }
+                                }
+
                                 if (uiState.canResetWorkingTarget) {
                                     OutlinedButton(
                                         onClick = onResetWorkingTargetClicked,
@@ -384,6 +405,47 @@ fun OnboardingScreen(
         }
     }
 }
+
+@Composable
+private fun assistantHeadline(uiState: OnboardingUiState): String =
+    when {
+        uiState.isRefreshingGuidance -> stringResource(id = R.string.onboarding_assistant_headline_loading)
+        uiState.guidanceError != null -> stringResource(id = R.string.onboarding_assistant_headline_retry)
+        uiState.guidanceExplanation != null && uiState.hasWorkingTargetOverride ->
+            stringResource(id = R.string.onboarding_assistant_headline_adjusted)
+        uiState.guidanceExplanation != null ->
+            stringResource(id = R.string.onboarding_assistant_headline_baseline)
+        uiState.calorieTarget != null ->
+            stringResource(id = R.string.onboarding_assistant_headline_ready)
+        else -> stringResource(id = R.string.onboarding_assistant_headline_intro)
+    }
+
+@Composable
+private fun assistantMessage(uiState: OnboardingUiState): String =
+    when {
+        uiState.isRefreshingGuidance -> stringResource(id = R.string.onboarding_assistant_message_loading)
+        uiState.guidanceError != null -> stringResource(id = R.string.onboarding_assistant_message_retry)
+        uiState.guidanceExplanation != null -> uiState.guidanceExplanation
+        uiState.calorieTarget != null -> stringResource(
+            id = R.string.onboarding_assistant_message_ready,
+            uiState.calorieTarget,
+        )
+        else -> stringResource(id = R.string.onboarding_assistant_message_intro)
+    }
+
+@Composable
+private fun assistantSupportingText(uiState: OnboardingUiState): String? =
+    when {
+        uiState.guidanceError != null -> uiState.guidanceError
+        uiState.guidanceNotes != null -> uiState.guidanceNotes
+        uiState.guidanceCalorieTarget != null && uiState.calorieTarget != null ->
+            stringResource(
+                id = R.string.onboarding_assistant_supporting_targets,
+                uiState.calorieTarget,
+                uiState.guidanceCalorieTarget,
+            )
+        else -> null
+    }
 
 @Composable
 private fun guidanceDeltaText(
