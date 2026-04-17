@@ -15,6 +15,16 @@ data class UserProfile(
     val createdAt: Instant,
     val updatedAt: Instant,
 ) {
+    val isSetupComplete: Boolean
+        get() = age > 0 &&
+            heightCm > 0f &&
+            weightKg > 0f &&
+            sex != Sex.UNSPECIFIED &&
+            exerciseLevel != ExerciseLevel.UNSPECIFIED &&
+            jobActivityLevel != JobActivityLevel.UNSPECIFIED &&
+            goalType != GoalType.UNSPECIFIED &&
+            calorieTarget > 0
+
     companion object {
         const val LOCAL_USER_ID: String = "local_user"
     }

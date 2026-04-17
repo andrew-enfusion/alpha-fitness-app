@@ -18,6 +18,8 @@ Before starting work, read:
 4. Prefer editable and recoverable flows before shortcuts.
 5. Do not implement work deferred by roadmap.
 6. If docs conflict, stop and resolve docs first.
+7. If information architecture or navigation structure is wrong, correct the shell and route foundation before deeper feature logic continues.
+8. Onboarding separation, app-entry gating, and top-level route ownership are structural prerequisites, not optional polish.
 
 ## Completion rule
 A phase item is complete only when:
@@ -28,3 +30,7 @@ A phase item is complete only when:
 
 ## Documentation update rule
 If coding reveals missing behavior rules, update docs before broadening implementation.
+
+## Phase transition rule
+- After Phase 2 is complete, Phase 2.5 must be completed before Phase 3 begins.
+- Phase 3 must not absorb app-shell redesign, onboarding separation, or top-level navigation correction work.

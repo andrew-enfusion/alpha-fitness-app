@@ -72,6 +72,7 @@ Stress test: current meal draft + assumptions + user profile + daily narrative
 - Keep provider-specific AI logic isolated behind an AI gateway.
 - AI response validation (three layers) must be implemented in the gateway or domain layer, never in UI.
 - Build text logging before photo logging unless explicitly requested otherwise.
+- If Phase 2.5 exists in the roadmap, complete shell, navigation, and layout foundation before Phase 3 text logging logic.
 - Build editable, reliable flows before convenience shortcuts.
 - When uncertain, preserve architecture boundaries over speed.
 

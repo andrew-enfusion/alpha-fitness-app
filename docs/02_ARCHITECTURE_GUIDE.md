@@ -20,6 +20,16 @@ Define the strict-core architecture rules and the flexible-edge guidance.
 `UI -> ViewModel -> UseCase -> Repository -> Room`
 Optional AI usage only through repository-owned gateway paths.
 
+### App shell and navigation rules
+- Onboarding is a dedicated first-run flow and must remain outside the main app shell.
+- App launch routing must use local persisted state only when deciding between onboarding and the main shell.
+- The post-onboarding app shell uses Navigation Compose plus a `Scaffold` with bottom navigation.
+- The only allowed top-level destinations are `Log`, `Calendar`, `Insights`, and `Profile`.
+- `History` must not exist as a top-level destination.
+- `Calendar Day Detail` is nested under `Calendar` and owns day-specific meal history.
+- `Log` owns the meal-creation workspace, natural-language meal entry flow, local-first recall of prior foods, review-card presentation, and meal confirmation once those later phases are implemented.
+- Placeholder screens are allowed in shell-foundation work, but they must not pull future-phase business logic forward just to appear populated.
+
 ### AI boundaries
 - AI may interpret input, ask clarifications, and generate summaries.
 - AI must not write directly to storage.
@@ -55,6 +65,7 @@ Optional AI usage only through repository-owned gateway paths.
 - No business logic in Compose UI.
 - No provider-specific logic in UI or feature packages.
 - Metrics and insights read from structured models, not raw chat.
+- Route ownership matters: onboarding setup stays separate from the main shell, and Calendar Day Detail owns historical day browsing.
 
 ## Flexible edge
 Allowed variation:

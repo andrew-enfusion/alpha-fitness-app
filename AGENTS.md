@@ -44,6 +44,10 @@ Use `docs/08_IMPLEMENTATION_ROADMAP.md`, `docs/09_NEXT_STEP_PROTOCOL.md`, and `d
 
 Implement only the next smallest complete slice. Do not jump ahead in the roadmap. Do not add future-phase features early.
 
+If the roadmap defines Phase 2.5, complete the shell, navigation, and layout foundation before starting Phase 3 text logging logic.
+
+Treat onboarding separation, app-entry gating, and top-level route ownership as documentation-controlled architecture work, not optional UI polish.
+
 After meaningful progress, update `docs/10_IMPLEMENTATION_STATUS.md`.
 Also update `CHANGELOG.md` with timestamped audit entries for the work completed.
 

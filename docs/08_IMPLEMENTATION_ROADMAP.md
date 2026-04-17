@@ -21,14 +21,23 @@ Complete and stabilize docs before significant coding.
 - editable profile and AI re-derivation on changes
 - NutritionGuidance persistence with derivationExplanation
 
+## Phase 2.5 - UI shell, navigation, and layout foundation
+- onboarding separated from the main app shell
+- app-entry routing based on local persisted onboarding/profile completion state
+- main app `Scaffold` with bottom navigation
+- top-level destinations: Log, Calendar, Insights, Profile
+- Calendar Day Detail route shell nested under Calendar
+- removal of any top-level History tab concept
+- intentional placeholder layouts for unfinished destinations using the shared design system
+
 ## Phase 3 - Text meal logging core
-- chat shell
-- text AI action handling
-- local food lookup
+- text AI action handling on the Log destination
+- local food lookup inside the Log flow
 - estimation engine
-- review-before-save (full card and fast-confirm path)
+- structured review-before-save flow
 - save meal flow
 - metrics recomputation triggers
+- required basic error states for text logging
 
 ## Phase 4 - AI-assisted meal card
 - separate meal card entry surface
@@ -39,18 +48,18 @@ Complete and stabilize docs before significant coding.
 - FoodReference write-back review card
 - save through standard flow
 
-## Phase 5 - History and editing
-- meal history
+## Phase 5 - Meal history detail and editing
+- meal history presentation inside Calendar Day Detail
 - meal detail
 - edit/delete flows
 - FoodReference write-back review card on edit
 - historical metrics recomputation
 
-## Phase 6 - Calendar and daily metrics
+## Phase 6 - Calendar data and daily metrics
 - daily metrics view (totalCalories vs targetCalories, raw numbers only)
 - over-target flagging in UI
 - calendar markers
-- day detail screen
+- real day detail data population
 
 ## Phase 7 - Insights and context narratives
 - daily summaries
@@ -74,6 +83,7 @@ Complete and stabilize docs before significant coding.
 
 ## Deferral rules
 - Do not build photo logging before text logging and meal card are stable.
-- Do not build convenience fast paths before edit/review/history flows are stable.
+- Do not build convenience fast paths before edit and review flows are stable.
 - Do not introduce sync or multi-user UX in V1.
-- Do not hardcode the confidence threshold — keep it a tunable config from day one.
+- Do not hardcode the confidence threshold; keep it a tunable config from day one.
+- Do not mix shell and navigation foundation work into Phase 3 text logging once Phase 2.5 has been defined.

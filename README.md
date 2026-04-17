@@ -3,7 +3,7 @@
 Alpha Fitness App is a local-first Android app for personal calorie tracking.
 
 ## Repository purpose
-This repository now contains the Phase 1 Android scaffold plus the reference architecture and operating docs Codex should use before expanding the product.
+This repository now contains the Android scaffold, the completed onboarding/profile foundation, the Phase 2.5 shell/navigation foundation, and the reference architecture docs Codex should use before expanding the product.
 
 ## How Codex should start a session
 1. Read `README_FIRST.md`
@@ -16,5 +16,6 @@ This repository now contains the Phase 1 Android scaffold plus the reference arc
 - GitHub remote is attached
 - Starter reference pack is installed
 - Phase 1 Android project skeleton is in place and validated
-- Core, domain, data, feature, navigation, DI, Room, and theme shells are scaffolded
+- Phase 2 onboarding/profile is complete
+- Phase 2.5 app shell is complete with separate onboarding, a bottom-nav main shell, and Calendar Day Detail routing
 - Gradle configuration, debug assembly, and unit tests now pass with the installed Android Studio JDK and Android SDK

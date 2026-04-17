@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Alpha Fitness App</string>
+    <string name="common_back">Back</string>
+    <string name="app_entry_title">Alpha Fitness</string>
+    <string name="app_entry_subtitle">Preparing your local app shell</string>
+    <string name="app_entry_label">App Entry</string>
+    <string name="app_entry_heading">Checking your saved setup</string>
+    <string name="app_entry_body">The app decides locally whether to launch onboarding or your main shell.</string>
+    <string name="app_entry_supporting">No AI or network calls are used for this decision.</string>
+
+    <string name="nav_log">Log</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_insights">Insights</string>
+    <string name="nav_profile">Profile</string>
+
     <string name="onboarding_title">Profile Setup</string>
-    <string name="onboarding_subtitle">Local onboarding shell</string>
-    <string name="onboarding_phase_badge">Phase 2 profile foundation</string>
-    <string name="onboarding_intro_title">Build a strong profile before calorie logic kicks in.</string>
-    <string name="onboarding_intro_body">This Phase 2 flow captures the profile inputs needed to compute a deterministic calorie baseline in-app, then stores separate guidance metadata without letting the guidance layer overwrite the baseline target.</string>
-    <string name="onboarding_helper_message">Your calorie target is derived locally using Mifflin-St Jeor plus activity and goal adjustments. The assistant then refreshes a working target explanation through the onboarding gateway while the baseline target remains app-owned.</string>
+    <string name="onboarding_topbar_subtitle">First-run setup flow</string>
+    <string name="onboarding_subtitle">Dedicated onboarding flow</string>
+    <string name="onboarding_phase_badge">Phase 2 onboarding foundation</string>
+    <string name="onboarding_intro_title">Set up a stable profile before you enter the main shell.</string>
+    <string name="onboarding_intro_body">This full-screen setup flow collects the personal details the app needs to derive your deterministic calorie baseline and save separate working-target guidance without mixing onboarding into the bottom-nav experience.</string>
+    <string name="onboarding_helper_message">Your calorie baseline is derived locally using Mifflin-St Jeor plus activity and goal adjustments. Guidance is persisted separately so the app can keep the baseline auditable.</string>
     <string name="onboarding_assistant_label">Alpha Assistant</string>
     <string name="onboarding_assistant_headline_intro">I can turn this profile into a working calorie target.</string>
     <string name="onboarding_assistant_headline_ready">Your baseline is ready for guidance.</string>
@@ -14,9 +28,9 @@
     <string name="onboarding_assistant_headline_retry">I need one more try.</string>
     <string name="onboarding_assistant_headline_baseline">Your working target matches the baseline.</string>
     <string name="onboarding_assistant_headline_adjusted">I adjusted your working target.</string>
-    <string name="onboarding_assistant_message_intro">Enter your profile details, save them once, and I’ll explain how your current working calorie target relates to the deterministic baseline.</string>
+    <string name="onboarding_assistant_message_intro">Enter your profile details, save them once, and I will explain how your current working calorie target relates to the deterministic baseline.</string>
     <string name="onboarding_assistant_message_ready">Your deterministic baseline is %1$d kcal/day. Save or resave your profile any time you want the assistant to refresh the working target and explanation.</string>
-    <string name="onboarding_assistant_message_loading">I’m reviewing your saved profile and generating an updated working target explanation now.</string>
+    <string name="onboarding_assistant_message_loading">I am reviewing your saved profile and generating an updated working target explanation now.</string>
     <string name="onboarding_assistant_message_retry">The saved baseline is still intact, but the assistant guidance refresh did not complete. Use retry to ask for the explanation again.</string>
     <string name="onboarding_assistant_supporting_targets">Baseline: %1$d kcal/day. Working target: %2$d kcal/day.</string>
     <string name="onboarding_measurements_section">Core profile details</string>
@@ -29,8 +43,8 @@
     <string name="onboarding_job_activity_label">Job activity level</string>
     <string name="onboarding_goal_label">Primary goal</string>
     <string name="onboarding_action_section">Save this local profile</string>
-    <string name="onboarding_action_description">This saves the profile to Room and persists the app-derived baseline calorie target with it.</string>
-    <string name="onboarding_save_label">Save profile locally</string>
+    <string name="onboarding_action_description">This completes your first-run setup and saves the profile plus deterministic baseline locally before you enter the main app shell.</string>
+    <string name="onboarding_save_label">Finish setup</string>
     <string name="onboarding_saving_label">Saving...</string>
     <string name="onboarding_saved_message">Profile and deterministic calorie target saved locally.</string>
     <string name="onboarding_invalid_numeric_message">Enter valid numeric values for age, height, and weight before saving.</string>
@@ -40,7 +54,7 @@
     <string name="onboarding_target_formula_note">Formula: Mifflin-St Jeor BMR, activity multiplier, and goal adjustment.</string>
     <string name="onboarding_guidance_current_target_label">Current working target</string>
     <string name="onboarding_guidance_section">Saved onboarding guidance</string>
-    <string name="onboarding_guidance_description">This guidance is stored separately from your profile. Its calorie target is the working target the app will use for progress tracking, metrics, and calorie-target UI.</string>
+    <string name="onboarding_guidance_description">This guidance is stored separately from your profile. Its calorie target is the working target the app uses for progress tracking and future calorie-target UI.</string>
     <string name="onboarding_guidance_loading">Refreshing guidance...</string>
     <string name="onboarding_guidance_target_value">Working target: %1$d kcal/day</string>
     <string name="onboarding_guidance_delta_label">Difference from baseline</string>
@@ -70,4 +84,90 @@
     <string name="onboarding_goal_lose">Lose weight</string>
     <string name="onboarding_goal_maintain">Maintain</string>
     <string name="onboarding_goal_gain">Gain weight</string>
+
+    <string name="profile_editor_title">Edit Profile</string>
+    <string name="profile_editor_subtitle">Full-screen profile update flow</string>
+    <string name="profile_editor_header_title">Update your saved profile</string>
+    <string name="profile_editor_header_description">Keep your stored baseline and working-target guidance aligned by editing your profile in the same dedicated flow used for setup.</string>
+    <string name="profile_editor_phase_badge">Profile update flow</string>
+    <string name="profile_editor_intro_title">Refine your stored details without losing the app shell.</string>
+    <string name="profile_editor_intro_body">This editor remains outside the bottom navigation so profile changes still feel like a focused setup task rather than a crowded tab page.</string>
+    <string name="profile_editor_action_description">Save your updated profile, refresh the deterministic baseline, and persist any updated working-target guidance.</string>
+    <string name="profile_editor_save_label">Save profile changes</string>
+
+    <string name="log_placeholder_label">Log Surface</string>
+    <string name="log_placeholder_title">This tab becomes your assisted meal-entry workspace.</string>
+    <string name="log_placeholder_body">Phase 2.5 only establishes the structure, hierarchy, and layout for future text logging work. No AI parsing or review flow is active yet.</string>
+    <string name="log_placeholder_supporting">Phase 3 will add natural-language meal entry, local-first recall, structured review cards, and confirmed save behavior here.</string>
+    <string name="log_workspace_section_title">Capture workspace</string>
+    <string name="log_workspace_section_description">The screen is already shaped around the future meal-entry flow, even though logging behavior is still deferred.</string>
+    <string name="log_workspace_row_one">This area will host the main logging composer and the evolving meal-entry conversation surface.</string>
+    <string name="log_workspace_row_two">For now it stays intentionally quiet so Phase 2.5 can focus on structure rather than partial feature logic.</string>
+    <string name="log_review_section_title">Review before save</string>
+    <string name="log_review_section_description">Structured meal review will appear in this destination once Phase 3 begins.</string>
+    <string name="log_review_row_one">Future meal review cards will sit in the center of this flow before anything is written to Room.</string>
+    <string name="log_review_row_two">The review gate is reserved for real structured drafts only, so no simulated save behavior is shown yet.</string>
+    <string name="log_memory_section_title">Local food memory</string>
+    <string name="log_memory_section_description">Prior foods and local-first matching stay part of the Log experience rather than becoming a separate top-level page.</string>
+    <string name="log_memory_row_one">Previously eaten foods will be referenced from here once the text logging core is implemented.</string>
+    <string name="log_memory_row_two">This preserves the product IA: Log owns creation, lookup, review, and confirmation as one flow.</string>
+
+    <string name="calendar_placeholder_label">Calendar Surface</string>
+    <string name="calendar_placeholder_title">Browse dates first, then open a selected day.</string>
+    <string name="calendar_placeholder_body">Phase 2.5 introduces the route structure for date browsing and Day Detail without pulling real calendar logic or analytics forward.</string>
+    <string name="calendar_placeholder_supporting">Day-specific meal history will live under Calendar Day Detail later instead of a separate History tab.</string>
+    <string name="calendar_browse_section_title">Date browsing shell</string>
+    <string name="calendar_browse_section_description">This placeholder month panel establishes the layout for future browsing without pretending real calendar behavior exists yet.</string>
+    <string name="calendar_day_detail_section_title">Selected day</string>
+    <string name="calendar_day_detail_section_description">Calendar owns the path into Day Detail, where selected-day meal history will eventually live.</string>
+    <string name="calendar_selected_day_value">Ready to open Day Detail for %1$s.</string>
+    <string name="calendar_open_day_detail">Open Day Detail</string>
+    <string name="calendar_day_detail_title">Day Detail</string>
+    <string name="calendar_day_detail_label">Day Detail</string>
+    <string name="calendar_day_detail_placeholder_title">This route is ready to hold one selected day of meals.</string>
+    <string name="calendar_day_detail_placeholder_body">Future chronological meal cards, editing entry points, and day-level totals will be anchored here.</string>
+    <string name="calendar_day_detail_placeholder_supporting">This placeholder exists now so Calendar can own history navigation structurally before deeper meal logic is implemented.</string>
+    <string name="calendar_day_detail_section_one_title">Meal timeline</string>
+    <string name="calendar_day_detail_section_one_description">Past meals for the selected date will appear here in time order.</string>
+    <string name="calendar_day_detail_section_one_row">Breakfast, lunch, dinner, and snack cards will be grouped cleanly inside this page later.</string>
+    <string name="calendar_day_detail_section_two_title">Day summary area</string>
+    <string name="calendar_day_detail_section_two_description">This section reserves space for selected-day totals and supporting context.</string>
+    <string name="calendar_day_detail_section_two_row">Phase 2.5 keeps this structural only so the route exists without forcing future analytics logic into the app early.</string>
+
+    <string name="insights_placeholder_label">Insights Surface</string>
+    <string name="insights_placeholder_title">Summaries and trends will land here later.</string>
+    <string name="insights_placeholder_body">This shell establishes the destination, hierarchy, and spacing for insights without introducing real summaries or chart logic early.</string>
+    <string name="insights_placeholder_supporting">The app now feels like a complete product shell even while the deeper insight behavior remains deferred.</string>
+    <string name="insights_section_one_title">Trend stories</string>
+    <string name="insights_section_one_description">Weekly and monthly narratives will eventually sit in this destination.</string>
+    <string name="insights_section_one_row">This section is reserved for the most important calorie-tracking patterns and future AI-generated summaries.</string>
+    <string name="insights_section_two_title">Visual summaries</string>
+    <string name="insights_section_two_description">Charts and structured summary blocks will appear here once the roadmap reaches the insights phases.</string>
+    <string name="insights_section_two_row">For now the layout prioritizes clarity, spacing, and hierarchy over placeholder data.</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Your stored details and guidance</string>
+    <string name="profile_edit_action">Edit</string>
+    <string name="profile_summary_label">Profile Snapshot</string>
+    <string name="profile_summary_title">This is the most complete screen after onboarding.</string>
+    <string name="profile_summary_body">Working target: %1$s. Baseline target: %2$s.</string>
+    <string name="profile_details_section_title">Stored profile</string>
+    <string name="profile_details_section_description">These values come from local persistence and continue to drive your deterministic baseline.</string>
+    <string name="profile_guidance_section_title">Guidance snapshot</string>
+    <string name="profile_guidance_section_description">This section shows the separate working target and guidance metadata saved during onboarding.</string>
+    <string name="profile_actions_section_title">Profile actions</string>
+    <string name="profile_actions_section_description">Profile editing stays available as a dedicated full-screen flow, not a tab-embedded setup page.</string>
+    <string name="profile_edit_button">Open full profile editor</string>
+    <string name="profile_age_label">Age</string>
+    <string name="profile_sex_label">Sex</string>
+    <string name="profile_height_label">Height</string>
+    <string name="profile_weight_label">Weight</string>
+    <string name="profile_exercise_label">Exercise level</string>
+    <string name="profile_job_activity_label">Job activity</string>
+    <string name="profile_goal_label">Goal</string>
+    <string name="profile_baseline_target_label">Baseline target</string>
+    <string name="profile_working_target_label">Working target</string>
+    <string name="profile_protein_label">Protein guidance</string>
+    <string name="profile_carb_label">Carb guidance</string>
+    <string name="profile_fat_label">Fat guidance</string>
 </resources>

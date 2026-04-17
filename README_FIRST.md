@@ -30,6 +30,7 @@ Before writing any code:
 - read the current implementation status
 - determine the next smallest valid task
 - summarize the plan before making changes
+- if Phase 2.5 exists, finish shell/navigation/layout foundation before Phase 3 text logging work
 
 ## Changelog rule
 - `CHANGELOG.md` is part of the audit trail for this repo.

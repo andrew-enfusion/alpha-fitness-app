@@ -13,28 +13,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import com.andrewenfusion.alphafitness.R
+import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessTopBar
 import com.andrewenfusion.alphafitness.core.designsystem.theme.AlphaFitnessSpacing
 import com.andrewenfusion.alphafitness.domain.model.ExerciseLevel
 import com.andrewenfusion.alphafitness.domain.model.GoalType
 import com.andrewenfusion.alphafitness.domain.model.JobActivityLevel
 import com.andrewenfusion.alphafitness.domain.model.Sex
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
+    mode: OnboardingMode,
     uiState: OnboardingUiState,
+    onNavigateBack: (() -> Unit)?,
     onAgeChanged: (String) -> Unit,
     onHeightChanged: (String) -> Unit,
     onWeightChanged: (String) -> Unit,
@@ -49,14 +48,18 @@ fun OnboardingScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                ),
-                title = {
-                    Text(text = stringResource(id = R.string.onboarding_title))
+            AlphaFitnessTopBar(
+                title = if (mode == OnboardingMode.FirstRun) {
+                    stringResource(id = R.string.onboarding_title)
+                } else {
+                    stringResource(id = R.string.profile_editor_title)
                 },
+                subtitle = if (mode == OnboardingMode.FirstRun) {
+                    stringResource(id = R.string.onboarding_topbar_subtitle)
+                } else {
+                    stringResource(id = R.string.profile_editor_subtitle)
+                },
+                onNavigateBack = onNavigateBack,
             )
         },
     ) { paddingValues ->
@@ -93,22 +96,42 @@ fun OnboardingScreen(
             ) {
                 item {
                     OnboardingSectionCard(
-                        title = stringResource(id = R.string.onboarding_subtitle),
-                        description = stringResource(id = R.string.onboarding_helper_message),
+                        title = if (mode == OnboardingMode.FirstRun) {
+                            stringResource(id = R.string.onboarding_subtitle)
+                        } else {
+                            stringResource(id = R.string.profile_editor_header_title)
+                        },
+                        description = if (mode == OnboardingMode.FirstRun) {
+                            stringResource(id = R.string.onboarding_helper_message)
+                        } else {
+                            stringResource(id = R.string.profile_editor_header_description)
+                        },
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
                             Text(
-                                text = stringResource(id = R.string.onboarding_phase_badge),
+                                text = if (mode == OnboardingMode.FirstRun) {
+                                    stringResource(id = R.string.onboarding_phase_badge)
+                                } else {
+                                    stringResource(id = R.string.profile_editor_phase_badge)
+                                },
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                             )
                             Text(
-                                text = stringResource(id = R.string.onboarding_intro_title),
+                                text = if (mode == OnboardingMode.FirstRun) {
+                                    stringResource(id = R.string.onboarding_intro_title)
+                                } else {
+                                    stringResource(id = R.string.profile_editor_intro_title)
+                                },
                                 style = MaterialTheme.typography.displaySmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
-                                text = stringResource(id = R.string.onboarding_intro_body),
+                                text = if (mode == OnboardingMode.FirstRun) {
+                                    stringResource(id = R.string.onboarding_intro_body)
+                                } else {
+                                    stringResource(id = R.string.profile_editor_intro_body)
+                                },
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -380,7 +403,11 @@ fun OnboardingScreen(
                 item {
                     OnboardingSectionCard(
                         title = stringResource(id = R.string.onboarding_action_section),
-                        description = stringResource(id = R.string.onboarding_action_description),
+                        description = if (mode == OnboardingMode.FirstRun) {
+                            stringResource(id = R.string.onboarding_action_description)
+                        } else {
+                            stringResource(id = R.string.profile_editor_action_description)
+                        },
                     ) {
                         Button(
                             onClick = onSaveClicked,
@@ -395,7 +422,11 @@ fun OnboardingScreen(
                                 text = if (uiState.isSaving) {
                                     stringResource(id = R.string.onboarding_saving_label)
                                 } else {
-                                    stringResource(id = R.string.onboarding_save_label)
+                                    if (mode == OnboardingMode.FirstRun) {
+                                        stringResource(id = R.string.onboarding_save_label)
+                                    } else {
+                                        stringResource(id = R.string.profile_editor_save_label)
+                                    }
                                 },
                             )
                         }
