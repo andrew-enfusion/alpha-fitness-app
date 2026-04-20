@@ -11,77 +11,56 @@ import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessH
 import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessScreenScaffold
 import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessSectionCard
 import com.andrewenfusion.alphafitness.core.designsystem.theme.AlphaFitnessSpacing
+import com.andrewenfusion.alphafitness.feature.log.component.LogComposerCard
+import com.andrewenfusion.alphafitness.feature.log.component.LogOutputPlaceholderCard
 
 @Composable
 fun LogScreen(
     uiState: LogUiState,
+    onDraftChanged: (String) -> Unit,
+    onSubmitClicked: () -> Unit,
 ) {
     AlphaFitnessScreenScaffold(
-        title = uiState.title,
-        subtitle = uiState.subtitle,
+        title = stringResource(id = R.string.log_title),
+        subtitle = stringResource(id = R.string.log_subtitle),
     ) {
         item {
             AlphaFitnessHeroCard(
-                label = stringResource(id = R.string.log_placeholder_label),
-                title = stringResource(id = R.string.log_placeholder_title),
-                body = stringResource(id = R.string.log_placeholder_body),
-                supportingText = stringResource(id = R.string.log_placeholder_supporting),
+                label = stringResource(id = R.string.log_workspace_label),
+                title = stringResource(id = R.string.log_workspace_title),
+                body = stringResource(id = R.string.log_workspace_body),
+                supportingText = stringResource(id = R.string.log_workspace_supporting),
+            )
+        }
+
+        item {
+            LogComposerCard(
+                draftMessage = uiState.draftMessage,
+                canSubmit = uiState.canSubmit,
+                onDraftChanged = onDraftChanged,
+                onSubmitClicked = onSubmitClicked,
+            )
+        }
+
+        item {
+            LogOutputPlaceholderCard(
+                outputPlaceholderState = uiState.outputPlaceholderState,
             )
         }
 
         item {
             AlphaFitnessSectionCard(
-                title = stringResource(id = R.string.log_workspace_section_title),
-                description = stringResource(id = R.string.log_workspace_section_description),
+                title = stringResource(id = R.string.log_next_section_title),
+                description = stringResource(id = R.string.log_next_section_description),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
                     Text(
-                        text = stringResource(id = R.string.log_workspace_row_one),
+                        text = stringResource(id = R.string.log_next_row_one),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = stringResource(id = R.string.log_workspace_row_two),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        item {
-            AlphaFitnessSectionCard(
-                title = stringResource(id = R.string.log_review_section_title),
-                description = stringResource(id = R.string.log_review_section_description),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
-                    Text(
-                        text = stringResource(id = R.string.log_review_row_one),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.log_review_row_two),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        item {
-            AlphaFitnessSectionCard(
-                title = stringResource(id = R.string.log_memory_section_title),
-                description = stringResource(id = R.string.log_memory_section_description),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
-                    Text(
-                        text = stringResource(id = R.string.log_memory_row_one),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.log_memory_row_two),
+                        text = stringResource(id = R.string.log_next_row_two),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -1,6 +1,9 @@
 package com.andrewenfusion.alphafitness.feature.log
 
 data class LogUiState(
-    val title: String = "Log",
-    val subtitle: String = "Your future meal-entry workspace",
-)
+    val draftMessage: String = "",
+    val outputPlaceholderState: LogOutputPlaceholderState = LogOutputPlaceholderState.Empty,
+) {
+    val canSubmit: Boolean
+        get() = draftMessage.isNotBlank()
+}
