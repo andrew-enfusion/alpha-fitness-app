@@ -7,7 +7,9 @@ class PrepareLogComposerSubmissionUseCase @Inject constructor() {
         val normalizedDraft = rawDraft.trim()
 
         return if (normalizedDraft.isBlank()) {
-            LogComposerSubmissionResult.ValidationError
+            LogComposerSubmissionResult.ValidationError(
+                message = "Enter a meal description first.",
+            )
         } else {
             LogComposerSubmissionResult.PendingSubmission(
                 submittedText = normalizedDraft,
@@ -21,5 +23,7 @@ sealed interface LogComposerSubmissionResult {
         val submittedText: String,
     ) : LogComposerSubmissionResult
 
-    data object ValidationError : LogComposerSubmissionResult
+    data class ValidationError(
+        val message: String,
+    ) : LogComposerSubmissionResult
 }

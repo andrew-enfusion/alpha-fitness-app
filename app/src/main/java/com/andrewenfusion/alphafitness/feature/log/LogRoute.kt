@@ -18,5 +18,8 @@ fun LogRoute(
         onSubmitClicked = {
             viewModel.onEvent(LogUiEvent.SubmitClicked)
         },
+        onRetryInterpretationClicked = {
+            viewModel.onEvent(LogUiEvent.RetryInterpretationClicked)
+        },
     )
 }

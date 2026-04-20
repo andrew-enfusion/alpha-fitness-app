@@ -12,13 +12,14 @@ import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessS
 import com.andrewenfusion.alphafitness.core.designsystem.component.AlphaFitnessSectionCard
 import com.andrewenfusion.alphafitness.core.designsystem.theme.AlphaFitnessSpacing
 import com.andrewenfusion.alphafitness.feature.log.component.LogComposerCard
-import com.andrewenfusion.alphafitness.feature.log.component.LogOutputPlaceholderCard
+import com.andrewenfusion.alphafitness.feature.log.component.LogInterpretationStateCard
 
 @Composable
 fun LogScreen(
     uiState: LogUiState,
     onDraftChanged: (String) -> Unit,
     onSubmitClicked: () -> Unit,
+    onRetryInterpretationClicked: () -> Unit,
 ) {
     AlphaFitnessScreenScaffold(
         title = stringResource(id = R.string.log_title),
@@ -43,8 +44,9 @@ fun LogScreen(
         }
 
         item {
-            LogOutputPlaceholderCard(
-                outputPlaceholderState = uiState.outputPlaceholderState,
+            LogInterpretationStateCard(
+                outputState = uiState.outputState,
+                onRetryClicked = onRetryInterpretationClicked,
             )
         }
 
