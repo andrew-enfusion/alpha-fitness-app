@@ -92,11 +92,19 @@ fun LogReviewCard(
             if (saveState == LogSaveState.Saving) {
                 CircularProgressIndicator()
             } else {
-                Text(text = stringResource(id = R.string.log_review_confirm_save))
+                Text(
+                    text = stringResource(
+                        id = if (saveState is LogSaveState.Failure) {
+                            R.string.log_review_retry_save
+                        } else {
+                            R.string.log_review_confirm_save
+                        },
+                    ),
+                )
             }
         }
 
-        if (saveState is LogSaveState.Error) {
+        if (saveState is LogSaveState.Failure) {
             Text(
                 text = saveState.message,
                 style = MaterialTheme.typography.bodyMedium,

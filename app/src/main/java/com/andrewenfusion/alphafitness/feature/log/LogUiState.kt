@@ -2,6 +2,7 @@ package com.andrewenfusion.alphafitness.feature.log
 
 data class LogUiState(
     val draftMessage: String = "",
+    val submittedDraft: String? = null,
     val outputState: LogOutputState = LogOutputState.Empty,
     val saveState: LogSaveState = LogSaveState.Idle,
 ) {
@@ -12,5 +13,10 @@ data class LogUiState(
 
     val canConfirmSave: Boolean
         get() = outputState is LogOutputState.ReviewReady &&
+            saveState != LogSaveState.Saving
+
+    val canRetryInterpretation: Boolean
+        get() = outputState.isRetryableInterpretationFailure &&
+            !submittedDraft.isNullOrBlank() &&
             saveState != LogSaveState.Saving
 }

@@ -7,9 +7,10 @@ sealed interface LogSaveState {
 
     data class Success(
         val savedMealId: String,
+        val warningMessage: String? = null,
     ) : LogSaveState
 
-    data class Error(
+    data class Failure(
         val message: String,
     ) : LogSaveState
 }

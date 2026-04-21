@@ -48,6 +48,7 @@ fun LogScreen(
             LogInterpretationStateCard(
                 outputState = uiState.outputState,
                 saveState = uiState.saveState,
+                canRetryInterpretation = uiState.canRetryInterpretation,
                 canConfirmSave = uiState.canConfirmSave,
                 onRetryClicked = onRetryInterpretationClicked,
                 onConfirmSaveClicked = onConfirmSaveClicked,

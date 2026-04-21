@@ -115,8 +115,10 @@
     <string name="log_output_loading_body">The Log workflow checks local matches first, then falls back to the interpretation gateway if needed.</string>
     <string name="log_output_error_title">Enter a meal description first</string>
     <string name="log_output_error_body">The Log workspace needs a short natural-language description before it can stage anything for the future review area.</string>
+    <string name="log_output_timeout_title">Interpretation timed out</string>
+    <string name="log_output_malformed_title">Interpretation came back malformed</string>
     <string name="log_output_interpretation_error_title">Interpretation was not completed</string>
-    <string name="log_output_retry">Try again</string>
+    <string name="log_output_retry">Retry interpretation</string>
     <string name="log_review_ready_title">Review this draft before any save step</string>
     <string name="log_review_source_local">Local-first match</string>
     <string name="log_review_source_ai">Gateway fallback</string>
@@ -127,9 +129,12 @@
     <string name="log_review_assumptions_title">Assumptions surfaced</string>
     <string name="log_review_assumption_bullet">• %1$s</string>
     <string name="log_review_confirm_save">Confirm and save meal</string>
+    <string name="log_review_retry_save">Retry save meal</string>
     <string name="log_save_success_title">Meal saved</string>
     <string name="log_save_success_body">Saved meal ID: %1$s. Daily totals were refreshed for the affected date.</string>
-    <string name="log_save_error_title">Meal saved, but totals need another refresh</string>
+    <string name="log_save_warning_title">Meal saved with a follow-up issue</string>
+    <string name="log_save_warning_body">Saved meal ID: %1$s. %2$s</string>
+    <string name="log_save_error_title">Meal was not saved</string>
     <string name="log_next_section_title">What this foundation unlocks next</string>
     <string name="log_next_section_description">The shell is now ready for real text-logging behavior without reworking the screen hierarchy again.</string>
     <string name="log_next_row_one">Next, this saved Log data can start feeding Calendar Day Detail and later daily-metrics surfaces without changing the Log workflow again.</string>

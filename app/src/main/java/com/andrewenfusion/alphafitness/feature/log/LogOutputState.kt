@@ -11,7 +11,15 @@ sealed interface LogOutputState {
         val message: String,
     ) : LogOutputState
 
-    data class InterpretationError(
+    data class InterpretationTimeout(
+        val message: String,
+    ) : LogOutputState
+
+    data class InterpretationMalformed(
+        val message: String,
+    ) : LogOutputState
+
+    data class InterpretationFailure(
         val message: String,
     ) : LogOutputState
 
@@ -19,3 +27,8 @@ sealed interface LogOutputState {
         val reviewState: LogMealReviewState,
     ) : LogOutputState
 }
+
+val LogOutputState.isRetryableInterpretationFailure: Boolean
+    get() = this is LogOutputState.InterpretationTimeout ||
+        this is LogOutputState.InterpretationMalformed ||
+        this is LogOutputState.InterpretationFailure

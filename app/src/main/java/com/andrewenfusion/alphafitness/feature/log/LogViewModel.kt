@@ -3,6 +3,7 @@ package com.andrewenfusion.alphafitness.feature.log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andrewenfusion.alphafitness.core.common.dispatcher.AppDispatchers
+import com.andrewenfusion.alphafitness.core.common.error.AppError
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.domain.usecase.ConfirmLogMealSaveOutcome
 import com.andrewenfusion.alphafitness.domain.usecase.ConfirmLogMealSaveUseCase
@@ -46,10 +47,7 @@ class LogViewModel @Inject constructor(
                     currentState.saveState
                 },
                 outputState = if (
-                    (
-                        currentState.outputState is LogOutputState.ValidationError ||
-                            currentState.outputState is LogOutputState.InterpretationError
-                        ) &&
+                    currentState.outputState is LogOutputState.ValidationError &&
                     value.isNotBlank()
                 ) {
                     LogOutputState.Empty
@@ -79,15 +77,9 @@ class LogViewModel @Inject constructor(
     }
 
     private fun onRetryInterpretationClicked() {
-        val currentOutputState = uiState.value.outputState
-        val currentDraft = uiState.value.draftMessage
-
-        when {
-            currentOutputState is LogOutputState.InterpretationError && currentDraft.isNotBlank() ->
-                interpretSubmittedText(currentDraft.trim())
-            currentOutputState is LogOutputState.ValidationError && currentDraft.isNotBlank() ->
-                interpretSubmittedText(currentDraft.trim())
-            else -> Unit
+        val submittedDraft = uiState.value.submittedDraft
+        if (uiState.value.canRetryInterpretation && !submittedDraft.isNullOrBlank()) {
+            interpretSubmittedText(submittedDraft)
         }
     }
 
@@ -95,7 +87,7 @@ class LogViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.main) {
             mutableUiState.update {
                 it.copy(
-                    draftMessage = submittedText,
+                    submittedDraft = submittedText,
                     saveState = LogSaveState.Idle,
                     outputState = LogOutputState.Loading,
                 )
@@ -105,7 +97,11 @@ class LogViewModel @Inject constructor(
                 is AppResult.Success -> {
                     mutableUiState.update {
                         it.copy(
-                            draftMessage = "",
+                            draftMessage = if (it.draftMessage.trim() == submittedText) {
+                                ""
+                            } else {
+                                it.draftMessage
+                            },
                             saveState = LogSaveState.Idle,
                             outputState = LogOutputState.ReviewReady(
                                 reviewState = result.value,
@@ -116,11 +112,8 @@ class LogViewModel @Inject constructor(
                 is AppResult.Failure -> {
                     mutableUiState.update {
                         it.copy(
-                            draftMessage = submittedText,
                             saveState = LogSaveState.Idle,
-                            outputState = LogOutputState.InterpretationError(
-                                message = result.error.message,
-                            ),
+                            outputState = result.error.toInterpretationFailureState(),
                         )
                     }
                 }
@@ -150,6 +143,7 @@ class LogViewModel @Inject constructor(
                                     saveState = LogSaveState.Success(
                                         savedMealId = outcome.savedMealId,
                                     ),
+                                    submittedDraft = null,
                                 )
                             }
                         }
@@ -157,9 +151,11 @@ class LogViewModel @Inject constructor(
                             mutableUiState.update {
                                 it.copy(
                                     outputState = LogOutputState.Empty,
-                                    saveState = LogSaveState.Error(
-                                        message = outcome.message,
+                                    saveState = LogSaveState.Success(
+                                        savedMealId = outcome.savedMealId,
+                                        warningMessage = outcome.message,
                                     ),
+                                    submittedDraft = null,
                                 )
                             }
                         }
@@ -168,7 +164,7 @@ class LogViewModel @Inject constructor(
                 is AppResult.Failure -> {
                     mutableUiState.update {
                         it.copy(
-                            saveState = LogSaveState.Error(
+                            saveState = LogSaveState.Failure(
                                 message = result.error.message,
                             ),
                         )
@@ -177,4 +173,17 @@ class LogViewModel @Inject constructor(
             }
         }
     }
+
+    private fun AppError.toInterpretationFailureState(): LogOutputState =
+        when (this) {
+            is AppError.Validation -> LogOutputState.ValidationError(message = message)
+            is AppError.AiTimeout -> LogOutputState.InterpretationTimeout(message = message)
+            is AppError.AiMalformedResponse -> LogOutputState.InterpretationMalformed(message = message)
+            is AppError.AiUnavailable,
+            is AppError.NetworkUnavailable,
+            is AppError.Storage,
+            is AppError.Unknown,
+            is AppError.Unsupported,
+            -> LogOutputState.InterpretationFailure(message = message)
+        }
 }

@@ -55,6 +55,7 @@ class LogViewModelTest {
             ),
             viewModel.uiState.value.outputState,
         )
+        assertEquals(null, viewModel.uiState.value.submittedDraft)
     }
 
     @Test
@@ -69,6 +70,50 @@ class LogViewModelTest {
     }
 
     @Test
+    fun retryUsesOriginalSubmittedDraftAfterTimeoutFailure() {
+        val mealRepository = FakeMealRepository(
+            interpretResults = mutableListOf(
+                AppResult.Failure(AppError.AiTimeout()),
+                AppResult.Success(sampleReviewState("Chicken shawarma wrap")),
+            ),
+        )
+        val viewModel = createViewModel(
+            mealRepository = mealRepository,
+        )
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("Chicken shawarma wrap"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+        viewModel.onEvent(LogUiEvent.DraftChanged("Edited meal that should not be retried"))
+        viewModel.onEvent(LogUiEvent.RetryInterpretationClicked)
+
+        assertEquals(
+            listOf("Chicken shawarma wrap", "Chicken shawarma wrap"),
+            mealRepository.interpretRequests,
+        )
+        assertEquals(
+            "Edited meal that should not be retried",
+            viewModel.uiState.value.draftMessage,
+        )
+        assertTrue(viewModel.uiState.value.outputState is LogOutputState.ReviewReady)
+    }
+
+    @Test
+    fun submitWithMalformedResultMapsToMalformedFailureState() {
+        val viewModel = createViewModel(
+            mealRepository = FakeMealRepository(
+                interpretResults = mutableListOf(
+                    AppResult.Failure(AppError.AiMalformedResponse()),
+                ),
+            ),
+        )
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("Chicken shawarma wrap"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+
+        assertTrue(viewModel.uiState.value.outputState is LogOutputState.InterpretationMalformed)
+    }
+
+    @Test
     fun confirmSaveFromReviewReadyStateClearsReviewAndStoresSavedMealId() {
         val viewModel = createViewModel()
 
@@ -80,12 +125,34 @@ class LogViewModelTest {
         assertTrue(viewModel.uiState.value.saveState is LogSaveState.Success)
     }
 
-    private fun createViewModel(): LogViewModel =
+    @Test
+    fun saveFailureKeepsReviewReadyStateSeparateFromInterpretationFailure() {
+        val mealRepository = FakeMealRepository(
+            saveFailure = AppError.Storage("Failed to store the reviewed meal."),
+        )
+        val viewModel = createViewModel(
+            mealRepository = mealRepository,
+        )
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("Chicken shawarma wrap"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+        viewModel.onEvent(LogUiEvent.ConfirmSaveClicked)
+
+        assertTrue(viewModel.uiState.value.outputState is LogOutputState.ReviewReady)
+        assertEquals(
+            LogSaveState.Failure("Failed to store the reviewed meal."),
+            viewModel.uiState.value.saveState,
+        )
+    }
+
+    private fun createViewModel(
+        mealRepository: FakeMealRepository = FakeMealRepository(),
+    ): LogViewModel =
         LogViewModel(
             dispatchers = dispatchers,
             prepareLogComposerSubmissionUseCase = PrepareLogComposerSubmissionUseCase(),
             interpretLogMealUseCase = InterpretLogMealUseCase(
-                repository = FakeMealRepository(),
+                repository = mealRepository,
                 localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
                 localMealMemoryConfig = LocalMealMemoryConfig(),
                 timeProvider = object : TimeProvider {
@@ -93,7 +160,7 @@ class LogViewModelTest {
                 },
             ),
             confirmLogMealSaveUseCase = ConfirmLogMealSaveUseCase(
-                mealRepository = FakeMealRepository(),
+                mealRepository = mealRepository,
                 dailyMetricsRepository = FakeDailyMetricsRepository(),
                 nutritionGuidanceRepository = FakeNutritionGuidanceRepository(),
                 userProfileRepository = FakeUserProfileRepository(),
@@ -104,13 +171,21 @@ class LogViewModelTest {
             ),
         )
 
-    private class FakeMealRepository : MealRepository {
+    private class FakeMealRepository(
+        private val interpretResults: MutableList<AppResult<LogMealReviewState>> = mutableListOf(
+            AppResult.Success(sampleReviewState("Chicken shawarma wrap")),
+        ),
+        private val saveFailure: AppError? = null,
+    ) : MealRepository {
+        val interpretRequests: MutableList<String> = mutableListOf()
+
         override fun observeMeals(): Flow<List<MealEntry>> = flowOf(emptyList())
 
         override suspend fun saveMealAndLoadMealsForDate(
             mealEntry: MealEntry,
             mealItems: List<MealItem>,
-        ): AppResult<List<MealEntry>> = AppResult.Success(listOf(mealEntry))
+        ): AppResult<List<MealEntry>> =
+            saveFailure?.let { AppResult.Failure(it) } ?: AppResult.Success(listOf(mealEntry))
 
         override suspend fun getMealsForDate(
             date: LocalDate,
@@ -122,27 +197,17 @@ class LogViewModelTest {
 
         override suspend fun interpretWithGateway(
             description: String,
-        ): AppResult<LogMealReviewState> = AppResult.Success(
-            LogMealReviewState(
-                submittedText = description,
-                interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
-                items = listOf(
-                    LogMealReviewItem(
-                        displayName = "Chicken shawarma wrap",
-                        portionDescription = "1 serving",
-                        calories = 510,
-                        protein = 24f,
-                        carbs = 46f,
-                        fat = 18f,
-                        assumptions = "Used a simple serving estimate.",
-                        confidence = 0.72f,
-                    ),
-                ),
-                assumptions = listOf("Used a simple serving estimate."),
-                requiresReview = true,
-                confidence = 0.72f,
-            ),
-        )
+        ): AppResult<LogMealReviewState> {
+            interpretRequests += description
+            val nextResult = interpretResults.removeFirstOrNull()
+                ?: AppResult.Success(sampleReviewState(description))
+            return when (nextResult) {
+                is AppResult.Success -> AppResult.Success(
+                    nextResult.value.copy(submittedText = description),
+                )
+                is AppResult.Failure -> nextResult
+            }
+        }
     }
 
     private class FakeDailyMetricsRepository : DailyMetricsRepository {
@@ -192,5 +257,30 @@ class LogViewModelTest {
 
         override suspend fun upsertUserProfile(profile: UserProfile): AppResult<Unit> =
             AppResult.Failure(AppError.Unsupported("Not used in this test."))
+    }
+
+    private companion object {
+        fun sampleReviewState(
+            submittedText: String,
+        ): LogMealReviewState =
+            LogMealReviewState(
+                submittedText = submittedText,
+                interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
+                items = listOf(
+                    LogMealReviewItem(
+                        displayName = "Chicken shawarma wrap",
+                        portionDescription = "1 serving",
+                        calories = 510,
+                        protein = 24f,
+                        carbs = 46f,
+                        fat = 18f,
+                        assumptions = "Used a simple serving estimate.",
+                        confidence = 0.72f,
+                    ),
+                ),
+                assumptions = listOf("Used a simple serving estimate."),
+                requiresReview = true,
+                confidence = 0.72f,
+            )
     }
 }

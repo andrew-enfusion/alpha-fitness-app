@@ -19,6 +19,7 @@ import com.andrewenfusion.alphafitness.feature.log.LogSaveState
 fun LogInterpretationStateCard(
     outputState: LogOutputState,
     saveState: LogSaveState,
+    canRetryInterpretation: Boolean,
     canConfirmSave: Boolean,
     onRetryClicked: () -> Unit,
     onConfirmSaveClicked: () -> Unit,
@@ -32,8 +33,14 @@ fun LogInterpretationStateCard(
                 Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
                     Text(
                         text = if (saveState is LogSaveState.Success) {
-                            stringResource(id = R.string.log_save_success_title)
-                        } else if (saveState is LogSaveState.Error) {
+                            stringResource(
+                                id = if (saveState.warningMessage == null) {
+                                    R.string.log_save_success_title
+                                } else {
+                                    R.string.log_save_warning_title
+                                },
+                            )
+                        } else if (saveState is LogSaveState.Failure) {
                             stringResource(id = R.string.log_save_error_title)
                         } else {
                             stringResource(id = R.string.log_output_empty_title)
@@ -43,15 +50,27 @@ fun LogInterpretationStateCard(
                     )
                     Text(
                         text = when (saveState) {
-                            is LogSaveState.Success -> stringResource(
-                                id = R.string.log_save_success_body,
-                                saveState.savedMealId,
-                            )
-                            is LogSaveState.Error -> saveState.message
+                            is LogSaveState.Success ->
+                                if (saveState.warningMessage == null) {
+                                    stringResource(
+                                        id = R.string.log_save_success_body,
+                                        saveState.savedMealId,
+                                    )
+                                } else {
+                                    stringResource(
+                                        id = R.string.log_save_warning_body,
+                                        saveState.savedMealId,
+                                        saveState.warningMessage,
+                                    )
+                                }
+                            is LogSaveState.Failure -> saveState.message
                             else -> stringResource(id = R.string.log_output_empty_body)
                         },
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (saveState is LogSaveState.Error) {
+                        color = if (
+                            saveState is LogSaveState.Failure ||
+                            (saveState is LogSaveState.Success && saveState.warningMessage != null)
+                        ) {
                             MaterialTheme.colorScheme.error
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
@@ -88,26 +107,27 @@ fun LogInterpretationStateCard(
                     )
                 }
             }
-            is LogOutputState.InterpretationError -> {
-                Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
-                    Text(
-                        text = stringResource(id = R.string.log_output_interpretation_error_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    Text(
-                        text = outputState.message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    Button(
-                        onClick = onRetryClicked,
-                        modifier = Modifier,
-                    ) {
-                        Text(text = stringResource(id = R.string.log_output_retry))
-                    }
-                }
-            }
+            is LogOutputState.InterpretationTimeout ->
+                RetryableInterpretationFailureContent(
+                    title = stringResource(id = R.string.log_output_timeout_title),
+                    message = outputState.message,
+                    canRetryInterpretation = canRetryInterpretation,
+                    onRetryClicked = onRetryClicked,
+                )
+            is LogOutputState.InterpretationMalformed ->
+                RetryableInterpretationFailureContent(
+                    title = stringResource(id = R.string.log_output_malformed_title),
+                    message = outputState.message,
+                    canRetryInterpretation = canRetryInterpretation,
+                    onRetryClicked = onRetryClicked,
+                )
+            is LogOutputState.InterpretationFailure ->
+                RetryableInterpretationFailureContent(
+                    title = stringResource(id = R.string.log_output_interpretation_error_title),
+                    message = outputState.message,
+                    canRetryInterpretation = canRetryInterpretation,
+                    onRetryClicked = onRetryClicked,
+                )
             is LogOutputState.ReviewReady -> {
                 LogReviewCard(
                     reviewState = outputState.reviewState,
@@ -116,6 +136,34 @@ fun LogInterpretationStateCard(
                     onConfirmSaveClicked = onConfirmSaveClicked,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun RetryableInterpretationFailureContent(
+    title: String,
+    message: String,
+    canRetryInterpretation: Boolean,
+    onRetryClicked: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.small)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.error,
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+        )
+        Button(
+            onClick = onRetryClicked,
+            enabled = canRetryInterpretation,
+            modifier = Modifier,
+        ) {
+            Text(text = stringResource(id = R.string.log_output_retry))
         }
     }
 }
