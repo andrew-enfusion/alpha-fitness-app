@@ -18,6 +18,19 @@ Read these files at the start of every implementation session, in this order:
 11. `docs/10_IMPLEMENTATION_STATUS.md`
 12. `docs/11_BUG_TRACKING.md`
 
+## Resume-work continuity flow
+If work is being resumed from a previous session or a fresh chat:
+
+1. Read `docs/14_LATEST_CONTEXT_REPORT.md` first for the fastest continuity handoff.
+2. Then read the required session-start docs in the standard order above.
+3. Use `docs/10_IMPLEMENTATION_STATUS.md`, `docs/08_IMPLEMENTATION_ROADMAP.md`, and `docs/09_NEXT_STEP_PROTOCOL.md` to confirm the real source-of-truth phase and next task.
+
+`docs/14_LATEST_CONTEXT_REPORT.md` is the primary handoff artifact for restoring momentum in a new session, but it does not replace the source-of-truth docs.
+
+## Handoff update rule
+- Use `docs/13_CONTEXT_REPORT_TEMPLATE.md` to regenerate `docs/14_LATEST_CONTEXT_REPORT.md`.
+- Follow `docs/15_HANDOFF_PROTOCOL.md` for when and how the handoff report must be refreshed.
+
 ## Conditional docs
 - Read `docs/07_PHOTO_PIPELINE.md` only when the current roadmap phase requires photo logging work.
 - Read `docs/12_AI_MEAL_CARD.md` when the current task touches the AI-assisted meal card flow or Phase 4 planning.

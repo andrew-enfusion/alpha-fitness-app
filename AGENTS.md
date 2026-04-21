@@ -21,6 +21,11 @@ Before writing any code, always inspect the repository structure and read the re
 - Read `docs/07_PHOTO_PIPELINE.md` only when the current roadmap phase requires photo logging work.
 - Read `docs/12_AI_MEAL_CARD.md` only when the current task touches the AI-assisted meal card flow or Phase 4 planning.
 
+## Resume-work continuity docs
+- If resuming work from a previous session or fresh chat, read `docs/14_LATEST_CONTEXT_REPORT.md` before planning.
+- `docs/14_LATEST_CONTEXT_REPORT.md` is the primary continuity artifact for handoff and resume flow, but it does not replace the source-of-truth docs.
+- Use `docs/13_CONTEXT_REPORT_TEMPLATE.md` plus `docs/15_HANDOFF_PROTOCOL.md` to regenerate the latest context report after meaningful completed slices.
+
 ## Changelog and audit rule
 - Update `CHANGELOG.md` after every meaningful change.
 - Each changelog entry must include a local date and time in `YYYY-MM-DD HH:MM:SS +/-HH:MM` format.
@@ -50,6 +55,7 @@ Treat onboarding separation, app-entry gating, and top-level route ownership as 
 
 After meaningful progress, update `docs/10_IMPLEMENTATION_STATUS.md`.
 Also update `CHANGELOG.md` with timestamped audit entries for the work completed.
+Also regenerate `docs/14_LATEST_CONTEXT_REPORT.md` according to `docs/15_HANDOFF_PROTOCOL.md`.
 
 If you discover a bug, architecture gap, or document conflict, log it in `docs/11_BUG_TRACKING.md` with timestamped activity and stop for clarification before broad expansion.
 

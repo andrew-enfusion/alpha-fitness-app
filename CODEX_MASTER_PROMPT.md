@@ -19,6 +19,7 @@ At session start, ensure these are read in order:
 
 Only bring in `docs/07_PHOTO_PIPELINE.md` when the current roadmap phase requires photo logging work.
 Bring in `docs/12_AI_MEAL_CARD.md` only when the current task touches the AI-assisted meal card flow or Phase 4 planning.
+If continuing prior work in a fresh or resumed session, read `docs/14_LATEST_CONTEXT_REPORT.md` before planning.
 
 ## Role
 Act as a senior Android engineer implementing Alpha Fitness App under a strict-core plus flexible-edge architecture.
@@ -54,9 +55,10 @@ Act as a senior Android engineer implementing Alpha Fitness App under a strict-c
 6. Before coding, produce a short plan referencing the relevant docs.
 7. Implement only the smallest complete next step.
 8. Update `docs/10_IMPLEMENTATION_STATUS.md` after completing meaningful work.
-9. Update `CHANGELOG.md` with timestamped audit entries using local time, a short scope label, and a concise summary of what changed.
-10. If a bug is found, log it in `docs/11_BUG_TRACKING.md` before or during the fix, including tracked date, last-updated date, status, and timestamped activity.
-11. If implementation reveals a missing rule, update the relevant doc before continuing broad feature work.
+9. After each meaningful completed slice, regenerate `docs/14_LATEST_CONTEXT_REPORT.md` using `docs/13_CONTEXT_REPORT_TEMPLATE.md` and following `docs/15_HANDOFF_PROTOCOL.md`.
+10. Update `CHANGELOG.md` with timestamped audit entries using local time, a short scope label, and a concise summary of what changed.
+11. If a bug is found, log it in `docs/11_BUG_TRACKING.md` before or during the fix, including tracked date, last-updated date, status, and timestamped activity.
+12. If implementation reveals a missing rule, update the relevant doc before continuing broad feature work.
 
 ## AI context injection by task type
 Meal interpretation (chat or card): profile + today's meals + recent chat (~20 messages) + daily narrative
