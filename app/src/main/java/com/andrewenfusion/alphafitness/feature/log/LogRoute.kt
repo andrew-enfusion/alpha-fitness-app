@@ -21,5 +21,8 @@ fun LogRoute(
         onRetryInterpretationClicked = {
             viewModel.onEvent(LogUiEvent.RetryInterpretationClicked)
         },
+        onConfirmSaveClicked = {
+            viewModel.onEvent(LogUiEvent.ConfirmSaveClicked)
+        },
     )
 }

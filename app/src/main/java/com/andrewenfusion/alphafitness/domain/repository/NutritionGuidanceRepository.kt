@@ -6,6 +6,8 @@ import com.andrewenfusion.alphafitness.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
 interface NutritionGuidanceRepository {
+    suspend fun getNutritionGuidance(userId: String = UserProfile.LOCAL_USER_ID): NutritionGuidance?
+
     fun observeNutritionGuidance(userId: String = UserProfile.LOCAL_USER_ID): Flow<NutritionGuidance?>
 
     suspend fun refreshNutritionGuidance(profile: UserProfile): AppResult<NutritionGuidance>

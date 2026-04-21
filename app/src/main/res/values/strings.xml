@@ -99,16 +99,16 @@
     <string name="log_subtitle">Natural-language meal entry workspace</string>
     <string name="log_workspace_label">Log Workspace</string>
     <string name="log_workspace_title">Describe what you ate in natural language.</string>
-    <string name="log_workspace_body">This first Phase 3 slice turns Log into a real composer-driven surface without pretending interpretation, review, or save behavior already exists.</string>
-    <string name="log_workspace_supporting">The screen stays focused on meal entry, not a generic chat transcript. Future interpretation and review will plug into this same workspace.</string>
+    <string name="log_workspace_body">Log now supports the core review-and-confirm path for text meal entry without broadening into chat history, photo flows, or later-phase shortcuts.</string>
+    <string name="log_workspace_supporting">The screen stays focused on meal entry, explicit review, and confirmed save, not a generic chat transcript.</string>
     <string name="log_composer_section_title">Meal entry composer</string>
     <string name="log_composer_section_description">Write how you ate the way you naturally remember it. This slice only captures and stages the input locally for the Log workspace.</string>
     <string name="log_composer_label">What did you eat?</string>
     <string name="log_composer_placeholder">For example: chicken shawarma wrap, fries, and a diet coke</string>
-    <string name="log_composer_supporting_text">Submitting now builds a structured review draft only. Nothing is saved or confirmed in this slice.</string>
+    <string name="log_composer_supporting_text">Submit to build a structured review draft. Saving is only allowed after that draft reaches the explicit review-ready state.</string>
     <string name="log_composer_submit">Interpret meal description</string>
     <string name="log_output_section_title">Review-ready output</string>
-    <string name="log_output_section_description">This section now shows the structured interpretation draft for review, without saving anything yet.</string>
+    <string name="log_output_section_description">This section shows the structured interpretation draft, then the explicit confirm-and-save state for the current meal.</string>
     <string name="log_output_empty_title">No interpretation yet</string>
     <string name="log_output_empty_body">Submit a meal description and this area will show a structured, review-ready draft built from local-first interpretation with fallback when needed.</string>
     <string name="log_output_loading_title">Interpreting your meal description</string>
@@ -126,10 +126,14 @@
     <string name="log_review_requires_review">This draft still requires user review before any future save flow.</string>
     <string name="log_review_assumptions_title">Assumptions surfaced</string>
     <string name="log_review_assumption_bullet">• %1$s</string>
+    <string name="log_review_confirm_save">Confirm and save meal</string>
+    <string name="log_save_success_title">Meal saved</string>
+    <string name="log_save_success_body">Saved meal ID: %1$s. Daily totals were refreshed for the affected date.</string>
+    <string name="log_save_error_title">Meal saved, but totals need another refresh</string>
     <string name="log_next_section_title">What this foundation unlocks next</string>
     <string name="log_next_section_description">The shell is now ready for real text-logging behavior without reworking the screen hierarchy again.</string>
-    <string name="log_next_row_one">Next, this review-ready draft can connect to a confirm/save step without changing the Log screen structure again.</string>
-    <string name="log_next_row_two">Metrics recompute, persistence, and confirmation remain intentionally deferred until the next Phase 3 slice.</string>
+    <string name="log_next_row_one">Next, this saved Log data can start feeding Calendar Day Detail and later daily-metrics surfaces without changing the Log workflow again.</string>
+    <string name="log_next_row_two">Food-memory write-back, edit/delete flows, and broader calendar or insight consumers still remain deferred.</string>
 
     <string name="calendar_placeholder_label">Calendar Surface</string>
     <string name="calendar_placeholder_title">Browse dates first, then open a selected day.</string>

@@ -1,9 +1,8 @@
 package com.andrewenfusion.alphafitness.domain.repository
 
+import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.domain.model.DailyMetrics
-import java.time.LocalDate
-import kotlinx.coroutines.flow.Flow
 
 interface DailyMetricsRepository {
-    fun observeDailyMetrics(date: LocalDate): Flow<DailyMetrics?>
+    suspend fun replaceDailyMetrics(metrics: DailyMetrics): AppResult<Unit>
 }

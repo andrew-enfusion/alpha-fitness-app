@@ -83,6 +83,8 @@ private class FakeNutritionGuidanceRepository : NutritionGuidanceRepository {
     var resetGuidance: NutritionGuidance? = null
         private set
 
+    override suspend fun getNutritionGuidance(userId: String): NutritionGuidance? = guidance
+
     override fun observeNutritionGuidance(userId: String): Flow<NutritionGuidance?> =
         flowOf(guidance)
 

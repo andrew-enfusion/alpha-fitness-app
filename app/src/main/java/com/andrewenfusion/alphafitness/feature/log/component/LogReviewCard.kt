@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,10 +20,14 @@ import com.andrewenfusion.alphafitness.core.designsystem.theme.AlphaFitnessSpaci
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
+import com.andrewenfusion.alphafitness.feature.log.LogSaveState
 
 @Composable
 fun LogReviewCard(
     reviewState: LogMealReviewState,
+    saveState: LogSaveState,
+    canConfirmSave: Boolean,
+    onConfirmSaveClicked: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(AlphaFitnessSpacing.medium)) {
         Text(
@@ -76,6 +82,26 @@ fun LogReviewCard(
                     )
                 }
             }
+        }
+
+        Button(
+            onClick = onConfirmSaveClicked,
+            enabled = canConfirmSave,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (saveState == LogSaveState.Saving) {
+                CircularProgressIndicator()
+            } else {
+                Text(text = stringResource(id = R.string.log_review_confirm_save))
+            }
+        }
+
+        if (saveState is LogSaveState.Error) {
+            Text(
+                text = saveState.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
         }
     }
 }

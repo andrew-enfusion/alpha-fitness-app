@@ -5,7 +5,9 @@ import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
+import com.andrewenfusion.alphafitness.domain.model.MealItem
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -69,10 +71,12 @@ class InterpretLogMealUseCaseTest {
                     protein = 18f,
                     carbs = 24f,
                     fat = 12f,
+                    confidence = 0.8f,
                 ),
             ),
             assumptions = listOf("Sample assumption"),
             requiresReview = true,
+            confidence = 0.8f,
         )
 
     private class FakeMealRepository(
@@ -83,9 +87,19 @@ class InterpretLogMealUseCaseTest {
             items = emptyList(),
             assumptions = emptyList(),
             requiresReview = true,
+            confidence = 0.5f,
         ),
     ) : MealRepository {
         override fun observeMeals(): Flow<List<MealEntry>> = flowOf(emptyList())
+
+        override suspend fun saveMealAndLoadMealsForDate(
+            mealEntry: MealEntry,
+            mealItems: List<MealItem>,
+        ): AppResult<List<MealEntry>> = AppResult.Success(emptyList())
+
+        override suspend fun getMealsForDate(
+            date: LocalDate,
+        ): AppResult<List<MealEntry>> = AppResult.Success(emptyList())
 
         override suspend fun lookupLocalInterpretation(
             description: String,

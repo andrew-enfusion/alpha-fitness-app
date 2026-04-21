@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andrewenfusion.alphafitness.core.common.dispatcher.AppDispatchers
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
+import com.andrewenfusion.alphafitness.domain.usecase.ConfirmLogMealSaveOutcome
+import com.andrewenfusion.alphafitness.domain.usecase.ConfirmLogMealSaveUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.LogComposerSubmissionResult
 import com.andrewenfusion.alphafitness.domain.usecase.InterpretLogMealUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.PrepareLogComposerSubmissionUseCase
@@ -20,6 +22,7 @@ class LogViewModel @Inject constructor(
     private val dispatchers: AppDispatchers,
     private val prepareLogComposerSubmissionUseCase: PrepareLogComposerSubmissionUseCase,
     private val interpretLogMealUseCase: InterpretLogMealUseCase,
+    private val confirmLogMealSaveUseCase: ConfirmLogMealSaveUseCase,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(LogUiState())
     val uiState: StateFlow<LogUiState> = mutableUiState.asStateFlow()
@@ -29,6 +32,7 @@ class LogViewModel @Inject constructor(
             is LogUiEvent.DraftChanged -> onDraftChanged(event.value)
             LogUiEvent.SubmitClicked -> onSubmitClicked()
             LogUiEvent.RetryInterpretationClicked -> onRetryInterpretationClicked()
+            LogUiEvent.ConfirmSaveClicked -> onConfirmSaveClicked()
         }
     }
 
@@ -36,6 +40,11 @@ class LogViewModel @Inject constructor(
         mutableUiState.update { currentState ->
             currentState.copy(
                 draftMessage = value,
+                saveState = if (currentState.saveState != LogSaveState.Idle) {
+                    LogSaveState.Idle
+                } else {
+                    currentState.saveState
+                },
                 outputState = if (
                     (
                         currentState.outputState is LogOutputState.ValidationError ||
@@ -52,6 +61,7 @@ class LogViewModel @Inject constructor(
     }
 
     private fun onSubmitClicked() {
+        mutableUiState.update { it.copy(saveState = LogSaveState.Idle) }
         when (val result = prepareLogComposerSubmissionUseCase(uiState.value.draftMessage)) {
             is LogComposerSubmissionResult.PendingSubmission -> {
                 interpretSubmittedText(result.submittedText)
@@ -86,6 +96,7 @@ class LogViewModel @Inject constructor(
             mutableUiState.update {
                 it.copy(
                     draftMessage = submittedText,
+                    saveState = LogSaveState.Idle,
                     outputState = LogOutputState.Loading,
                 )
             }
@@ -95,6 +106,7 @@ class LogViewModel @Inject constructor(
                     mutableUiState.update {
                         it.copy(
                             draftMessage = "",
+                            saveState = LogSaveState.Idle,
                             outputState = LogOutputState.ReviewReady(
                                 reviewState = result.value,
                             ),
@@ -105,7 +117,58 @@ class LogViewModel @Inject constructor(
                     mutableUiState.update {
                         it.copy(
                             draftMessage = submittedText,
+                            saveState = LogSaveState.Idle,
                             outputState = LogOutputState.InterpretationError(
+                                message = result.error.message,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onConfirmSaveClicked() {
+        val reviewState = (uiState.value.outputState as? LogOutputState.ReviewReady)?.reviewState ?: return
+
+        if (uiState.value.saveState == LogSaveState.Saving) {
+            return
+        }
+
+        viewModelScope.launch(dispatchers.main) {
+            mutableUiState.update { currentState ->
+                currentState.copy(saveState = LogSaveState.Saving)
+            }
+
+            when (val result = confirmLogMealSaveUseCase(reviewState)) {
+                is AppResult.Success -> {
+                    when (val outcome = result.value) {
+                        is ConfirmLogMealSaveOutcome.Success -> {
+                            mutableUiState.update {
+                                it.copy(
+                                    outputState = LogOutputState.Empty,
+                                    saveState = LogSaveState.Success(
+                                        savedMealId = outcome.savedMealId,
+                                    ),
+                                )
+                            }
+                        }
+                        is ConfirmLogMealSaveOutcome.MetricsRefreshFailed -> {
+                            mutableUiState.update {
+                                it.copy(
+                                    outputState = LogOutputState.Empty,
+                                    saveState = LogSaveState.Error(
+                                        message = outcome.message,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+                is AppResult.Failure -> {
+                    mutableUiState.update {
+                        it.copy(
+                            saveState = LogSaveState.Error(
                                 message = result.error.message,
                             ),
                         )

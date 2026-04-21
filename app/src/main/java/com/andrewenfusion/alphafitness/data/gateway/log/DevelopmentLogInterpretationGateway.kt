@@ -31,6 +31,7 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
                     "Restaurant or homemade preparation details were not confirmed in this slice.",
                 ),
                 requiresReview = true,
+                confidence = 0.72f,
             ),
         )
     }
@@ -78,6 +79,8 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
             protein = protein,
             carbs = carbs,
             fat = fat,
+            assumptions = "Used a simple single-serving estimate for this item.",
+            confidence = 0.72f,
         )
     }
 }

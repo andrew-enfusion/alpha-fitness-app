@@ -8,4 +8,6 @@ sealed interface LogUiEvent {
     data object SubmitClicked : LogUiEvent
 
     data object RetryInterpretationClicked : LogUiEvent
+
+    data object ConfirmSaveClicked : LogUiEvent
 }

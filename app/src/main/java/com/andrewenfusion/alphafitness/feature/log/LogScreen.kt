@@ -20,6 +20,7 @@ fun LogScreen(
     onDraftChanged: (String) -> Unit,
     onSubmitClicked: () -> Unit,
     onRetryInterpretationClicked: () -> Unit,
+    onConfirmSaveClicked: () -> Unit,
 ) {
     AlphaFitnessScreenScaffold(
         title = stringResource(id = R.string.log_title),
@@ -46,7 +47,10 @@ fun LogScreen(
         item {
             LogInterpretationStateCard(
                 outputState = uiState.outputState,
+                saveState = uiState.saveState,
+                canConfirmSave = uiState.canConfirmSave,
                 onRetryClicked = onRetryInterpretationClicked,
+                onConfirmSaveClicked = onConfirmSaveClicked,
             )
         }
 

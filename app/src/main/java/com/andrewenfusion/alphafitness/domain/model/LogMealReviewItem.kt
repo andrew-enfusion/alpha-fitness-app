@@ -7,4 +7,6 @@ data class LogMealReviewItem(
     val protein: Float,
     val carbs: Float,
     val fat: Float,
+    val assumptions: String = "",
+    val confidence: Float,
 )

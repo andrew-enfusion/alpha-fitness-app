@@ -6,6 +6,7 @@ data class LogMealReviewState(
     val items: List<LogMealReviewItem>,
     val assumptions: List<String>,
     val requiresReview: Boolean,
+    val confidence: Float,
 ) {
     val totalCalories: Int
         get() = items.sumOf { it.calories }

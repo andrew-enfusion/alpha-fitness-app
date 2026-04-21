@@ -4,9 +4,11 @@ import com.andrewenfusion.alphafitness.data.gateway.onboarding.ConfiguredOnboard
 import com.andrewenfusion.alphafitness.data.gateway.onboarding.OnboardingGuidanceGateway
 import com.andrewenfusion.alphafitness.data.gateway.log.DevelopmentLogInterpretationGateway
 import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
+import com.andrewenfusion.alphafitness.data.repository.RoomDailyMetricsRepository
 import com.andrewenfusion.alphafitness.data.repository.RoomMealRepository
 import com.andrewenfusion.alphafitness.data.repository.RoomNutritionGuidanceRepository
 import com.andrewenfusion.alphafitness.data.repository.RoomUserProfileRepository
+import com.andrewenfusion.alphafitness.domain.repository.DailyMetricsRepository
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
 import com.andrewenfusion.alphafitness.domain.repository.NutritionGuidanceRepository
 import com.andrewenfusion.alphafitness.domain.repository.UserProfileRepository
@@ -36,6 +38,12 @@ abstract class RepositoryModule {
     abstract fun bindMealRepository(
         repository: RoomMealRepository,
     ): MealRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDailyMetricsRepository(
+        repository: RoomDailyMetricsRepository,
+    ): DailyMetricsRepository
 
     @Binds
     @Singleton

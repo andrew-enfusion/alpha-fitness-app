@@ -25,6 +25,11 @@ class RoomNutritionGuidanceRepository @Inject constructor(
     private val config: NutritionGuidanceConfig,
     private val dispatchers: AppDispatchers,
 ) : NutritionGuidanceRepository {
+    override suspend fun getNutritionGuidance(userId: String): NutritionGuidance? =
+        withContext(dispatchers.io) {
+            guidanceDao.getByUserId(userId)?.toDomain()
+        }
+
     override fun observeNutritionGuidance(userId: String): Flow<NutritionGuidance?> =
         guidanceDao
             .observeByUserId(userId)
