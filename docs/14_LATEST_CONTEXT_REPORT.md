@@ -14,6 +14,8 @@
   - Phase 2 onboarding and profile
   - Phase 2.5 UI shell, navigation, and layout foundation
 - Phase 3 text meal logging core is in progress.
+- The core Phase 3 Log loop is functionally complete: draft input, interpretation, review-ready state, explicit confirm-save, Room persistence, and daily metrics recompute all work today.
+- Remaining Phase 3 work is refinement, not core loop construction. The next work is about clarification and low-confidence fallback behavior inside the existing Log flow.
 - Working end-to-end flows today:
   - first-run onboarding and profile persistence
   - deterministic baseline calorie-target derivation
@@ -55,13 +57,14 @@
 ## 3. What changed recently (delta)
 
 - Last completed slice: explicit Log failure-state and retry refinement
-  - Distinct interpretation states now exist for validation, timeout, malformed result, and generic failure
-  - Save failure remains separate from interpretation failure
-  - Retry uses preserved `submittedDraft`, not the live input field
-  - Retryable interpretation failures share one UI pattern instead of duplicating layouts
+  - `LogOutputState` now distinguishes `ValidationError`, `InterpretationTimeout`, `InterpretationMalformed`, and `InterpretationFailure` instead of treating interpretation failure as one generic state
+  - `LogUiState.submittedDraft` is now preserved per submission, and `LogViewModel` retries interpretation against that immutable value instead of the live `draftMessage`
+  - `LogInterpretationStateCard` now groups timeout, malformed, and generic interpretation failures under one retryable UI pattern
+  - `LogSaveState.Failure` now stays separate from interpretation output so save retry can happen from the existing `ReviewReady` state
 - Previous slice: local meal-memory matching
-  - Local-first matching now uses a bounded set of recent confirmed saved meals
-  - Matching is deterministic and item-aware rather than blind full-meal replay
+  - `InterpretLogMealUseCase` now calls `MealRepository.getRecentSavedMeals(...)` before gateway fallback and runs `LocalMealMemoryMatcher`
+  - `LocalMealMemoryMatcher` scores token overlap, phrase containment, and recency over a bounded recent-meal set
+  - Local reuse is item-aware through `SavedMealMemory` and avoids replaying unrelated items from an older full meal
 
 ## 4. Key models and structures
 
@@ -85,7 +88,31 @@
   - broader AI action contract is documented
   - Log still uses a development interpretation gateway rather than a full provider-backed `LOG_MEAL` path
 
-## 5. Current limitations and gaps
+## 5. Data flow snapshot
+
+- User enters text in the Log composer
+- `LogViewModel` handles `SubmitClicked`
+- `PrepareLogComposerSubmissionUseCase` validates and trims the draft
+- `InterpretLogMealUseCase` orchestrates interpretation
+- `MealRepository.getRecentSavedMeals(...)` provides bounded recent confirmed meals
+- `LocalMealMemoryMatcher` attempts deterministic local-first matching
+- If local confidence is insufficient, `MealRepository.interpretWithGateway(...)` uses `DevelopmentLogInterpretationGateway`
+- `LogViewModel` maps the result to `LogOutputState.ReviewReady`
+- User confirms save from the review card
+- `ConfirmLogMealSaveUseCase` persists `MealEntry` and `MealItem` through `MealRepository.saveMealAndLoadMealsForDate(...)`
+- `DailyMetricsCalculator` recomputes the affected date from scratch
+- `DailyMetricsRepository.replaceDailyMetrics(...)` stores the replacement metrics
+- `LogViewModel` updates `LogSaveState` and clears back to the post-save UI state
+
+## 6. Interaction rules (Log)
+
+- Save is only allowed from `LogOutputState.ReviewReady`
+- Review-before-save remains mandatory for all current Log saves
+- Retry interpretation uses preserved `submittedDraft`, not the live input field
+- Save retry does not rerun interpretation; it retries from the existing review-ready meal state
+- Interpretation failure and save failure remain separate state paths
+
+## 7. Current limitations and gaps
 
 - `LogInterpretationGateway` is still development-only, not a full provider-backed Log gateway
 - `FoodReference` write-back and learning are not implemented
@@ -94,14 +121,14 @@
 - advanced summary and narrative flows are not started
 - fast-confirm optimization is not implemented
 
-## 6. Known risks and open bugs
+## 8. Known risks and open bugs
 
 - Open bug:
   - `SEC-001` - High - provider-backed onboarding guidance still lacks a production-safe mobile credential strategy
 - Architectural risk:
   - Log interpretation still depends on a development gateway, so the future real gateway slice must preserve current use-case orchestration and review-before-save behavior
 
-## 7. Next logical steps
+## 9. Next logical steps
 
 - Current active phase: Phase 3 text meal logging core
 - Exact next smallest valid task:
@@ -114,7 +141,7 @@
   - FoodReference write-back learning
   - edit/delete history flows
 
-## 8. Constraints to preserve
+## 10. Constraints to preserve
 
 - `UserProfile.calorieTarget` remains the deterministic baseline and must never be overwritten by AI
 - `NutritionGuidance.calorieTarget` is the working target used by the app
@@ -126,7 +153,7 @@
 - retry must use preserved submitted draft, not mutable live input
 - the context report is a continuity aid, not the authoritative replacement for roadmap, status, bug, or architecture docs
 
-## 9. Current phase / slice status
+## 11. Current phase / slice status
 
 - Current roadmap phase:
   - Phase 3 text meal logging core
