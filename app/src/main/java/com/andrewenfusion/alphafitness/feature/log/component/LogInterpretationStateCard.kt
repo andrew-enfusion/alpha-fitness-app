@@ -19,9 +19,14 @@ import com.andrewenfusion.alphafitness.feature.log.LogSaveState
 fun LogInterpretationStateCard(
     outputState: LogOutputState,
     saveState: LogSaveState,
+    clarificationDraft: String,
     canRetryInterpretation: Boolean,
+    canSubmitClarification: Boolean,
     canConfirmSave: Boolean,
     onRetryClicked: () -> Unit,
+    onClarificationDraftChanged: (String) -> Unit,
+    onClarificationOptionSelected: (String) -> Unit,
+    onSubmitClarificationClicked: () -> Unit,
     onConfirmSaveClicked: () -> Unit,
 ) {
     AlphaFitnessSectionCard(
@@ -128,6 +133,16 @@ fun LogInterpretationStateCard(
                     canRetryInterpretation = canRetryInterpretation,
                     onRetryClicked = onRetryClicked,
                 )
+            is LogOutputState.LowConfidence -> {
+                LogClarificationCard(
+                    clarificationState = outputState.clarificationState,
+                    clarificationDraft = clarificationDraft,
+                    canSubmitClarification = canSubmitClarification,
+                    onClarificationDraftChanged = onClarificationDraftChanged,
+                    onClarificationOptionSelected = onClarificationOptionSelected,
+                    onSubmitClarificationClicked = onSubmitClarificationClicked,
+                )
+            }
             is LogOutputState.ReviewReady -> {
                 LogReviewCard(
                     reviewState = outputState.reviewState,

@@ -20,6 +20,9 @@ fun LogScreen(
     onDraftChanged: (String) -> Unit,
     onSubmitClicked: () -> Unit,
     onRetryInterpretationClicked: () -> Unit,
+    onClarificationDraftChanged: (String) -> Unit,
+    onClarificationOptionSelected: (String) -> Unit,
+    onSubmitClarificationClicked: () -> Unit,
     onConfirmSaveClicked: () -> Unit,
 ) {
     AlphaFitnessScreenScaffold(
@@ -48,9 +51,14 @@ fun LogScreen(
             LogInterpretationStateCard(
                 outputState = uiState.outputState,
                 saveState = uiState.saveState,
+                clarificationDraft = uiState.clarificationDraft,
                 canRetryInterpretation = uiState.canRetryInterpretation,
+                canSubmitClarification = uiState.canSubmitClarification,
                 canConfirmSave = uiState.canConfirmSave,
                 onRetryClicked = onRetryInterpretationClicked,
+                onClarificationDraftChanged = onClarificationDraftChanged,
+                onClarificationOptionSelected = onClarificationOptionSelected,
+                onSubmitClarificationClicked = onSubmitClarificationClicked,
                 onConfirmSaveClicked = onConfirmSaveClicked,
             )
         }

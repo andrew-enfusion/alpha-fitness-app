@@ -9,5 +9,15 @@ sealed interface LogUiEvent {
 
     data object RetryInterpretationClicked : LogUiEvent
 
+    data class ClarificationDraftChanged(
+        val value: String,
+    ) : LogUiEvent
+
+    data class ClarificationOptionSelected(
+        val value: String,
+    ) : LogUiEvent
+
+    data object SubmitClarificationClicked : LogUiEvent
+
     data object ConfirmSaveClicked : LogUiEvent
 }

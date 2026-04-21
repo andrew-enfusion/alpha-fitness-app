@@ -1,5 +1,6 @@
 package com.andrewenfusion.alphafitness.feature.log
 
+import com.andrewenfusion.alphafitness.domain.model.LogClarificationState
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 
 sealed interface LogOutputState {
@@ -21,6 +22,10 @@ sealed interface LogOutputState {
 
     data class InterpretationFailure(
         val message: String,
+    ) : LogOutputState
+
+    data class LowConfidence(
+        val clarificationState: LogClarificationState,
     ) : LogOutputState
 
     data class ReviewReady(

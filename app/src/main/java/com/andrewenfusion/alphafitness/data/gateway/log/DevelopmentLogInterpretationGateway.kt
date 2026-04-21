@@ -11,6 +11,7 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
     override suspend fun interpretMealDescription(
         description: String,
     ): AppResult<LogMealReviewState> {
+        val isLowConfidenceInput = isLowConfidenceInput(description)
         val parts = description
             .split(",", " and ")
             .map { it.trim() }
@@ -27,11 +28,19 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
                 interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
                 items = items,
                 assumptions = listOf(
-                    "Used a simple single-serving estimate for each described food.",
+                    if (isLowConfidenceInput) {
+                        "Description was still broad, so this draft is a best-effort estimate."
+                    } else {
+                        "Used a simple single-serving estimate for each described food."
+                    },
                     "Restaurant or homemade preparation details were not confirmed in this slice.",
                 ),
                 requiresReview = true,
-                confidence = 0.72f,
+                confidence = if (isLowConfidenceInput) {
+                    0.48f
+                } else {
+                    0.72f
+                },
             ),
         )
     }
@@ -46,6 +55,8 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
             "burrito" in normalizedPart -> 520
             "wrap" in normalizedPart -> 460
             "shawarma" in normalizedPart -> 510
+            "beef" in normalizedPart -> 330
+            "vegetarian" in normalizedPart || "veggie" in normalizedPart -> 230
             "salad" in normalizedPart -> 220
             "yogurt" in normalizedPart -> 190
             "granola" in normalizedPart -> 210
@@ -56,6 +67,8 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
         }
         val protein = when {
             "chicken" in normalizedPart || "shawarma" in normalizedPart -> 24f
+            "beef" in normalizedPart -> 22f
+            "vegetarian" in normalizedPart || "veggie" in normalizedPart -> 10f
             "yogurt" in normalizedPart -> 14f
             else -> (calories * 0.08f / 4f).roundToInt().toFloat()
         }
@@ -81,6 +94,38 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
             fat = fat,
             assumptions = "Used a simple single-serving estimate for this item.",
             confidence = 0.72f,
+        )
+    }
+
+    private fun isLowConfidenceInput(
+        description: String,
+    ): Boolean {
+        val normalizedDescription = description.lowercase()
+        val tokenCount = normalizedDescription
+            .split(" ", ",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .size
+
+        return tokenCount <= 2 && lowConfidenceTerms.any { it in normalizedDescription }
+    }
+
+    private companion object {
+        val lowConfidenceTerms = setOf(
+            "meal",
+            "food",
+            "stuff",
+            "something",
+            "snack",
+            "plate",
+            "bowl",
+            "sandwich",
+            "wrap",
+            "burger",
+            "burrito",
+            "pasta",
+            "salad",
+            "drink",
         )
     }
 }

@@ -21,6 +21,15 @@ fun LogRoute(
         onRetryInterpretationClicked = {
             viewModel.onEvent(LogUiEvent.RetryInterpretationClicked)
         },
+        onClarificationDraftChanged = { value ->
+            viewModel.onEvent(LogUiEvent.ClarificationDraftChanged(value))
+        },
+        onClarificationOptionSelected = { value ->
+            viewModel.onEvent(LogUiEvent.ClarificationOptionSelected(value))
+        },
+        onSubmitClarificationClicked = {
+            viewModel.onEvent(LogUiEvent.SubmitClarificationClicked)
+        },
         onConfirmSaveClicked = {
             viewModel.onEvent(LogUiEvent.ConfirmSaveClicked)
         },

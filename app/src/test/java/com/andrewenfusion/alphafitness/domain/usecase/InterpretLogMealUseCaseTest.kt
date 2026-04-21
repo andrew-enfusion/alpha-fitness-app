@@ -1,6 +1,7 @@
 package com.andrewenfusion.alphafitness.domain.usecase
 
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
+import com.andrewenfusion.alphafitness.core.config.LogClarificationConfig
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
 import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
 import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
@@ -12,6 +13,7 @@ import com.andrewenfusion.alphafitness.domain.model.MealItem
 import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
 import com.andrewenfusion.alphafitness.domain.model.SavedMealMemoryItem
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
+import com.andrewenfusion.alphafitness.feature.log.LogOutputState
 import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
@@ -59,13 +61,16 @@ class InterpretLogMealUseCaseTest {
             repository = repository,
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
             localMealMemoryConfig = LocalMealMemoryConfig(),
+            logClarificationConfig = LogClarificationConfig(),
             timeProvider = fixedTimeProvider(),
         )
 
         val result = useCase("Greek yogurt with granola")
 
         assertTrue(result is AppResult.Success)
-        val review = (result as AppResult.Success).value
+        val outputState = (result as AppResult.Success).value
+        assertTrue(outputState is LogOutputState.ReviewReady)
+        val review = (outputState as LogOutputState.ReviewReady).reviewState
         assertEquals(LogMealInterpretationSource.LOCAL_MATCH, review.interpretationSource)
         assertEquals("Greek yogurt with granola", review.submittedText)
         assertEquals(2, review.items.size)
@@ -84,20 +89,80 @@ class InterpretLogMealUseCaseTest {
             ),
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
             localMealMemoryConfig = LocalMealMemoryConfig(),
+            logClarificationConfig = LogClarificationConfig(),
             timeProvider = fixedTimeProvider(),
         )
 
         val result = useCase("Chicken burrito bowl")
 
         assertTrue(result is AppResult.Success)
-        val review = (result as AppResult.Success).value
+        val outputState = (result as AppResult.Success).value
+        assertTrue(outputState is LogOutputState.ReviewReady)
+        val review = (outputState as LogOutputState.ReviewReady).reviewState
         assertEquals(LogMealInterpretationSource.AI_FALLBACK, review.interpretationSource)
         assertEquals("Chicken burrito bowl", review.submittedText)
+    }
+
+    @Test
+    fun returnsLowConfidenceBeforeReviewReadyWhenGatewayDraftIsTooBroad() = runBlocking {
+        val useCase = InterpretLogMealUseCase(
+            repository = FakeMealRepository(
+                gatewayReview = sampleReview(
+                    submittedText = "sandwich",
+                    source = LogMealInterpretationSource.AI_FALLBACK,
+                    confidence = 0.48f,
+                ),
+            ),
+            localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
+            localMealMemoryConfig = LocalMealMemoryConfig(),
+            logClarificationConfig = LogClarificationConfig(),
+            timeProvider = fixedTimeProvider(),
+        )
+
+        val result = useCase("sandwich")
+
+        assertTrue(result is AppResult.Success)
+        val outputState = (result as AppResult.Success).value
+        assertTrue(outputState is LogOutputState.LowConfidence)
+        val clarificationState = (outputState as LogOutputState.LowConfidence).clarificationState
+        assertEquals("sandwich", clarificationState.originalSubmittedDraft)
+        assertEquals(3, clarificationState.quickOptions.size)
+    }
+
+    @Test
+    fun clarificationAnswerProducesReviewReadyWithoutSecondClarificationCycle() = runBlocking {
+        val useCase = InterpretLogMealUseCase(
+            repository = FakeMealRepository(
+                gatewayReview = sampleReview(
+                    submittedText = "Chicken sandwich",
+                    source = LogMealInterpretationSource.AI_FALLBACK,
+                    confidence = 0.55f,
+                ),
+            ),
+            localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
+            localMealMemoryConfig = LocalMealMemoryConfig(),
+            logClarificationConfig = LogClarificationConfig(),
+            timeProvider = fixedTimeProvider(),
+        )
+
+        val result = useCase(
+            originalSubmittedDraft = "sandwich",
+            clarificationAnswer = "Chicken",
+        )
+
+        assertTrue(result is AppResult.Success)
+        val outputState = (result as AppResult.Success).value
+        assertTrue(outputState is LogOutputState.ReviewReady)
+        val reviewState = (outputState as LogOutputState.ReviewReady).reviewState
+        assertEquals("sandwich", reviewState.submittedText)
+        assertTrue(reviewState.assumptions.any { "Clarification used: Chicken." in it })
+        assertTrue(reviewState.assumptions.any { "best-effort estimate" in it })
     }
 
     private fun sampleReview(
         submittedText: String,
         source: LogMealInterpretationSource,
+        confidence: Float = 0.8f,
     ): LogMealReviewState =
         LogMealReviewState(
             submittedText = submittedText,
@@ -108,14 +173,14 @@ class InterpretLogMealUseCaseTest {
                     portionDescription = "1 serving",
                     calories = 320,
                     protein = 18f,
-                    carbs = 24f,
-                    fat = 12f,
-                    confidence = 0.8f,
-                ),
+                        carbs = 24f,
+                        fat = 12f,
+                        confidence = confidence,
+                    ),
             ),
             assumptions = listOf("Sample assumption"),
             requiresReview = true,
-            confidence = 0.8f,
+            confidence = confidence,
         )
 
     private fun fixedTimeProvider(): TimeProvider =

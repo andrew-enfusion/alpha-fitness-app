@@ -3,8 +3,10 @@ package com.andrewenfusion.alphafitness.feature.log
 import com.andrewenfusion.alphafitness.core.common.dispatcher.AppDispatchers
 import com.andrewenfusion.alphafitness.core.common.error.AppError
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
+import com.andrewenfusion.alphafitness.core.config.LogClarificationConfig
 import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
 import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
+import com.andrewenfusion.alphafitness.domain.model.LogClarificationState
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
@@ -70,6 +72,32 @@ class LogViewModelTest {
     }
 
     @Test
+    fun submitWithBroadDraftShowsLowConfidenceClarificationState() {
+        val viewModel = createViewModel(
+            mealRepository = FakeMealRepository(
+                interpretResults = mutableListOf(
+                    AppResult.Success(
+                        sampleReviewState(
+                            submittedText = "sandwich",
+                            confidence = 0.48f,
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("sandwich"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+
+        assertTrue(viewModel.uiState.value.outputState is LogOutputState.LowConfidence)
+        val clarificationState =
+            (viewModel.uiState.value.outputState as LogOutputState.LowConfidence).clarificationState
+        assertEquals("sandwich", clarificationState.originalSubmittedDraft)
+        assertEquals("", viewModel.uiState.value.draftMessage)
+        assertEquals("sandwich", viewModel.uiState.value.submittedDraft)
+    }
+
+    @Test
     fun retryUsesOriginalSubmittedDraftAfterTimeoutFailure() {
         val mealRepository = FakeMealRepository(
             interpretResults = mutableListOf(
@@ -114,6 +142,68 @@ class LogViewModelTest {
     }
 
     @Test
+    fun quickOptionClarificationUsesOriginalSubmittedDraftAndProducesReviewReadyState() {
+        val mealRepository = FakeMealRepository(
+            interpretResults = mutableListOf(
+                AppResult.Success(
+                    sampleReviewState(
+                        submittedText = "sandwich",
+                        confidence = 0.48f,
+                    ),
+                ),
+                AppResult.Success(
+                    sampleReviewState(
+                        submittedText = "Chicken sandwich",
+                        confidence = 0.55f,
+                    ),
+                ),
+            ),
+        )
+        val viewModel = createViewModel(mealRepository = mealRepository)
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("sandwich"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+        viewModel.onEvent(LogUiEvent.ClarificationOptionSelected("Chicken"))
+
+        assertEquals(listOf("sandwich", "Chicken sandwich"), mealRepository.interpretRequests)
+        assertTrue(viewModel.uiState.value.outputState is LogOutputState.ReviewReady)
+        val reviewState =
+            (viewModel.uiState.value.outputState as LogOutputState.ReviewReady).reviewState
+        assertEquals("sandwich", reviewState.submittedText)
+        assertTrue(reviewState.assumptions.any { "Clarification used: Chicken." in it })
+    }
+
+    @Test
+    fun textClarificationSubmitsWithoutOverwritingOriginalDraft() {
+        val mealRepository = FakeMealRepository(
+            interpretResults = mutableListOf(
+                AppResult.Success(
+                    sampleReviewState(
+                        submittedText = "sandwich",
+                        confidence = 0.48f,
+                    ),
+                ),
+                AppResult.Success(
+                    sampleReviewState(
+                        submittedText = "Turkey sandwich",
+                        confidence = 0.55f,
+                    ),
+                ),
+            ),
+        )
+        val viewModel = createViewModel(mealRepository = mealRepository)
+
+        viewModel.onEvent(LogUiEvent.DraftChanged("sandwich"))
+        viewModel.onEvent(LogUiEvent.SubmitClicked)
+        viewModel.onEvent(LogUiEvent.ClarificationDraftChanged("Turkey"))
+        viewModel.onEvent(LogUiEvent.SubmitClarificationClicked)
+
+        assertEquals("sandwich", viewModel.uiState.value.submittedDraft)
+        assertEquals("", viewModel.uiState.value.clarificationDraft)
+        assertEquals(listOf("sandwich", "Turkey sandwich"), mealRepository.interpretRequests)
+    }
+
+    @Test
     fun confirmSaveFromReviewReadyStateClearsReviewAndStoresSavedMealId() {
         val viewModel = createViewModel()
 
@@ -155,6 +245,7 @@ class LogViewModelTest {
                 repository = mealRepository,
                 localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
                 localMealMemoryConfig = LocalMealMemoryConfig(),
+                logClarificationConfig = LogClarificationConfig(),
                 timeProvider = object : TimeProvider {
                     override fun now(): Instant = Instant.parse("2026-04-21T12:00:00Z")
                 },
@@ -262,6 +353,7 @@ class LogViewModelTest {
     private companion object {
         fun sampleReviewState(
             submittedText: String,
+            confidence: Float = 0.72f,
         ): LogMealReviewState =
             LogMealReviewState(
                 submittedText = submittedText,
@@ -275,12 +367,12 @@ class LogViewModelTest {
                         carbs = 46f,
                         fat = 18f,
                         assumptions = "Used a simple serving estimate.",
-                        confidence = 0.72f,
+                        confidence = confidence,
                     ),
                 ),
                 assumptions = listOf("Used a simple serving estimate."),
                 requiresReview = true,
-                confidence = 0.72f,
+                confidence = confidence,
             )
     }
 }

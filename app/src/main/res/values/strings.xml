@@ -119,6 +119,11 @@
     <string name="log_output_malformed_title">Interpretation came back malformed</string>
     <string name="log_output_interpretation_error_title">Interpretation was not completed</string>
     <string name="log_output_retry">Retry interpretation</string>
+    <string name="log_clarification_title">One clarification will help</string>
+    <string name="log_clarification_label">Add a short clarification</string>
+    <string name="log_clarification_placeholder">For example: chicken, diet soda, or homemade</string>
+    <string name="log_clarification_submit">Interpret with clarification</string>
+    <string name="log_clarification_partial_summary">Current best guess: %1$s (%2$d kcal total)</string>
     <string name="log_review_ready_title">Review this draft before any save step</string>
     <string name="log_review_source_local">Local-first match</string>
     <string name="log_review_source_ai">Gateway fallback</string>

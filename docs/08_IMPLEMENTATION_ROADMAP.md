@@ -39,6 +39,13 @@ Complete and stabilize docs before significant coding.
 - metrics recomputation triggers
 - required basic error states for text logging
 
+## Phase 3.5 - Log clarification and low-confidence refinement
+- single-cycle low-confidence clarification handling on the Log destination
+- explicit `LowConfidence` output state separate from errors and review-ready output
+- clarification card with quick options and simple text response
+- reinterpretation using original submitted draft plus optional clarification answer
+- no chat transcript, no clarification persistence, and no save-flow redesign
+
 ## Phase 4 - AI-assisted meal card
 - separate meal card entry surface
 - seed input and first-pass AI draft

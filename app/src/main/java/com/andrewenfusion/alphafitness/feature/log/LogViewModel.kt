@@ -31,7 +31,10 @@ class LogViewModel @Inject constructor(
     fun onEvent(event: LogUiEvent) {
         when (event) {
             is LogUiEvent.DraftChanged -> onDraftChanged(event.value)
+            is LogUiEvent.ClarificationDraftChanged -> onClarificationDraftChanged(event.value)
+            is LogUiEvent.ClarificationOptionSelected -> onClarificationSubmitted(event.value)
             LogUiEvent.SubmitClicked -> onSubmitClicked()
+            LogUiEvent.SubmitClarificationClicked -> onSubmitClarificationClicked()
             LogUiEvent.RetryInterpretationClicked -> onRetryInterpretationClicked()
             LogUiEvent.ConfirmSaveClicked -> onConfirmSaveClicked()
         }
@@ -46,6 +49,11 @@ class LogViewModel @Inject constructor(
                 } else {
                     currentState.saveState
                 },
+                clarificationDraft = if (currentState.outputState is LogOutputState.LowConfidence) {
+                    currentState.clarificationDraft
+                } else {
+                    ""
+                },
                 outputState = if (
                     currentState.outputState is LogOutputState.ValidationError &&
                     value.isNotBlank()
@@ -53,6 +61,19 @@ class LogViewModel @Inject constructor(
                     LogOutputState.Empty
                 } else {
                     currentState.outputState
+                },
+            )
+        }
+    }
+
+    private fun onClarificationDraftChanged(value: String) {
+        mutableUiState.update { currentState ->
+            currentState.copy(
+                clarificationDraft = value,
+                saveState = if (currentState.saveState != LogSaveState.Idle) {
+                    LogSaveState.Idle
+                } else {
+                    currentState.saveState
                 },
             )
         }
@@ -79,39 +100,69 @@ class LogViewModel @Inject constructor(
     private fun onRetryInterpretationClicked() {
         val submittedDraft = uiState.value.submittedDraft
         if (uiState.value.canRetryInterpretation && !submittedDraft.isNullOrBlank()) {
-            interpretSubmittedText(submittedDraft)
+            interpretSubmittedText(originalSubmittedDraft = submittedDraft)
         }
     }
 
-    private fun interpretSubmittedText(submittedText: String) {
+    private fun onSubmitClarificationClicked() {
+        val clarificationAnswer = uiState.value.clarificationDraft.trim()
+        if (clarificationAnswer.isNotBlank()) {
+            onClarificationSubmitted(clarificationAnswer)
+        }
+    }
+
+    private fun onClarificationSubmitted(
+        clarificationAnswer: String,
+    ) {
+        val originalSubmittedDraft = uiState.value.submittedDraft
+        if (
+            uiState.value.outputState is LogOutputState.LowConfidence &&
+            !originalSubmittedDraft.isNullOrBlank()
+        ) {
+            interpretSubmittedText(
+                originalSubmittedDraft = originalSubmittedDraft,
+                clarificationAnswer = clarificationAnswer,
+            )
+        }
+    }
+
+    private fun interpretSubmittedText(
+        originalSubmittedDraft: String,
+        clarificationAnswer: String? = null,
+    ) {
         viewModelScope.launch(dispatchers.main) {
             mutableUiState.update {
                 it.copy(
-                    submittedDraft = submittedText,
+                    submittedDraft = originalSubmittedDraft,
+                    clarificationDraft = "",
                     saveState = LogSaveState.Idle,
                     outputState = LogOutputState.Loading,
                 )
             }
 
-            when (val result = interpretLogMealUseCase(submittedText)) {
+            when (val result = interpretLogMealUseCase(originalSubmittedDraft, clarificationAnswer)) {
                 is AppResult.Success -> {
                     mutableUiState.update {
+                        val nextOutputState = result.value
                         it.copy(
-                            draftMessage = if (it.draftMessage.trim() == submittedText) {
+                            draftMessage = if (
+                                clarificationAnswer == null &&
+                                it.draftMessage.trim() == originalSubmittedDraft
+                            ) {
                                 ""
                             } else {
                                 it.draftMessage
                             },
+                            clarificationDraft = "",
                             saveState = LogSaveState.Idle,
-                            outputState = LogOutputState.ReviewReady(
-                                reviewState = result.value,
-                            ),
+                            outputState = nextOutputState,
                         )
                     }
                 }
                 is AppResult.Failure -> {
                     mutableUiState.update {
                         it.copy(
+                            clarificationDraft = "",
                             saveState = LogSaveState.Idle,
                             outputState = result.error.toInterpretationFailureState(),
                         )
@@ -143,6 +194,7 @@ class LogViewModel @Inject constructor(
                                     saveState = LogSaveState.Success(
                                         savedMealId = outcome.savedMealId,
                                     ),
+                                    clarificationDraft = "",
                                     submittedDraft = null,
                                 )
                             }
@@ -155,6 +207,7 @@ class LogViewModel @Inject constructor(
                                         savedMealId = outcome.savedMealId,
                                         warningMessage = outcome.message,
                                     ),
+                                    clarificationDraft = "",
                                     submittedDraft = null,
                                 )
                             }
