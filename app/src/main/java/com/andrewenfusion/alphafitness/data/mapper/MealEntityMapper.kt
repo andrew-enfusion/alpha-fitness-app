@@ -5,6 +5,9 @@ import com.andrewenfusion.alphafitness.core.database.entity.MealItemEntity
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
 import com.andrewenfusion.alphafitness.domain.model.MealSourceType
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemoryItem
+import com.andrewenfusion.alphafitness.data.repository.model.MealEntryWithItems
 import java.time.Instant
 import java.time.LocalDate
 
@@ -52,6 +55,26 @@ fun MealItem.toEntity(): MealItemEntity =
         displayName = displayName,
         quantity = quantity,
         unit = unit,
+        portionDescription = portionDescription,
+        calories = calories,
+        protein = protein,
+        carbs = carbs,
+        fat = fat,
+        assumptions = assumptions,
+        confidence = confidence,
+    )
+
+fun MealEntryWithItems.toSavedMealMemory(): SavedMealMemory =
+    SavedMealMemory(
+        mealEntryId = mealEntry.id,
+        rawInput = mealEntry.rawInput,
+        timestamp = Instant.ofEpochMilli(mealEntry.timestampEpochMillis),
+        items = mealItems.map { item -> item.toSavedMealMemoryItem() },
+    )
+
+private fun MealItemEntity.toSavedMealMemoryItem(): SavedMealMemoryItem =
+    SavedMealMemoryItem(
+        displayName = displayName,
         portionDescription = portionDescription,
         calories = calories,
         protein = protein,

@@ -2,10 +2,14 @@ package com.andrewenfusion.alphafitness.feature.log
 
 import com.andrewenfusion.alphafitness.core.common.dispatcher.AppDispatchers
 import com.andrewenfusion.alphafitness.core.common.error.AppError
+import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
+import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
+import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.MealItem
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
 import com.andrewenfusion.alphafitness.domain.repository.DailyMetricsRepository
 import com.andrewenfusion.alphafitness.domain.repository.NutritionGuidanceRepository
@@ -22,7 +26,6 @@ import com.andrewenfusion.alphafitness.domain.usecase.InterpretLogMealUseCase
 import com.andrewenfusion.alphafitness.domain.usecase.PrepareLogComposerSubmissionUseCase
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.engine.DailyMetricsCalculator
-import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import java.time.Instant
 import java.time.LocalDate
@@ -83,6 +86,11 @@ class LogViewModelTest {
             prepareLogComposerSubmissionUseCase = PrepareLogComposerSubmissionUseCase(),
             interpretLogMealUseCase = InterpretLogMealUseCase(
                 repository = FakeMealRepository(),
+                localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
+                localMealMemoryConfig = LocalMealMemoryConfig(),
+                timeProvider = object : TimeProvider {
+                    override fun now(): Instant = Instant.parse("2026-04-21T12:00:00Z")
+                },
             ),
             confirmLogMealSaveUseCase = ConfirmLogMealSaveUseCase(
                 mealRepository = FakeMealRepository(),
@@ -108,9 +116,9 @@ class LogViewModelTest {
             date: LocalDate,
         ): AppResult<List<MealEntry>> = AppResult.Success(emptyList())
 
-        override suspend fun lookupLocalInterpretation(
-            description: String,
-        ): AppResult<LogMealReviewState?> = AppResult.Success(null)
+        override suspend fun getRecentSavedMeals(
+            limit: Int,
+        ): AppResult<List<SavedMealMemory>> = AppResult.Success(emptyList())
 
         override suspend fun interpretWithGateway(
             description: String,

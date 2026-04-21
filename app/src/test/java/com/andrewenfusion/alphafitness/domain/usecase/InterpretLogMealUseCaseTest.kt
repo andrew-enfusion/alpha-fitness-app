@@ -1,12 +1,18 @@
 package com.andrewenfusion.alphafitness.domain.usecase
 
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
+import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
+import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
+import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemoryItem
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
+import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -18,14 +24,42 @@ import org.junit.Test
 class InterpretLogMealUseCaseTest {
     @Test
     fun returnsLocalMatchBeforeGatewayFallback() = runBlocking {
-        val localReview = sampleReview(
-            submittedText = "Greek yogurt with granola",
-            source = LogMealInterpretationSource.LOCAL_MATCH,
+        val repository = FakeMealRepository(
+            savedMeals = listOf(
+                SavedMealMemory(
+                    mealEntryId = "meal-1",
+                    rawInput = "Greek yogurt with granola",
+                    timestamp = Instant.parse("2026-04-20T08:00:00Z"),
+                    items = listOf(
+                        SavedMealMemoryItem(
+                            displayName = "Greek yogurt",
+                            portionDescription = "1 serving",
+                            calories = 190,
+                            protein = 14f,
+                            carbs = 12f,
+                            fat = 5f,
+                            assumptions = "Used the last confirmed serving.",
+                            confidence = 0.9f,
+                        ),
+                        SavedMealMemoryItem(
+                            displayName = "Granola",
+                            portionDescription = "1 handful",
+                            calories = 210,
+                            protein = 5f,
+                            carbs = 30f,
+                            fat = 8f,
+                            assumptions = "Used the last confirmed serving.",
+                            confidence = 0.88f,
+                        ),
+                    ),
+                ),
+            ),
         )
         val useCase = InterpretLogMealUseCase(
-            repository = FakeMealRepository(
-                localReview = localReview,
-            ),
+            repository = repository,
+            localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
+            localMealMemoryConfig = LocalMealMemoryConfig(),
+            timeProvider = fixedTimeProvider(),
         )
 
         val result = useCase("Greek yogurt with granola")
@@ -34,6 +68,8 @@ class InterpretLogMealUseCaseTest {
         val review = (result as AppResult.Success).value
         assertEquals(LogMealInterpretationSource.LOCAL_MATCH, review.interpretationSource)
         assertEquals("Greek yogurt with granola", review.submittedText)
+        assertEquals(2, review.items.size)
+        assertEquals(30, repository.requestedLimit)
     }
 
     @Test
@@ -46,6 +82,9 @@ class InterpretLogMealUseCaseTest {
             repository = FakeMealRepository(
                 gatewayReview = gatewayReview,
             ),
+            localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
+            localMealMemoryConfig = LocalMealMemoryConfig(),
+            timeProvider = fixedTimeProvider(),
         )
 
         val result = useCase("Chicken burrito bowl")
@@ -79,8 +118,13 @@ class InterpretLogMealUseCaseTest {
             confidence = 0.8f,
         )
 
+    private fun fixedTimeProvider(): TimeProvider =
+        object : TimeProvider {
+            override fun now(): Instant = Instant.parse("2026-04-21T12:00:00Z")
+        }
+
     private class FakeMealRepository(
-        private val localReview: LogMealReviewState? = null,
+        private val savedMeals: List<SavedMealMemory> = emptyList(),
         private val gatewayReview: LogMealReviewState = LogMealReviewState(
             submittedText = "fallback",
             interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
@@ -90,6 +134,8 @@ class InterpretLogMealUseCaseTest {
             confidence = 0.5f,
         ),
     ) : MealRepository {
+        var requestedLimit: Int? = null
+
         override fun observeMeals(): Flow<List<MealEntry>> = flowOf(emptyList())
 
         override suspend fun saveMealAndLoadMealsForDate(
@@ -101,9 +147,12 @@ class InterpretLogMealUseCaseTest {
             date: LocalDate,
         ): AppResult<List<MealEntry>> = AppResult.Success(emptyList())
 
-        override suspend fun lookupLocalInterpretation(
-            description: String,
-        ): AppResult<LogMealReviewState?> = AppResult.Success(localReview)
+        override suspend fun getRecentSavedMeals(
+            limit: Int,
+        ): AppResult<List<SavedMealMemory>> {
+            requestedLimit = limit
+            return AppResult.Success(savedMeals.take(limit))
+        }
 
         override suspend fun interpretWithGateway(
             description: String,

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.andrewenfusion.alphafitness.core.database.entity.MealEntryEntity
 import com.andrewenfusion.alphafitness.core.database.entity.MealItemEntity
+import com.andrewenfusion.alphafitness.data.repository.model.MealEntryWithItems
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,6 +23,12 @@ abstract class MealEntryDao {
 
     @Query("SELECT * FROM meal_entry ORDER BY timestampEpochMillis DESC")
     abstract fun observeMeals(): Flow<List<MealEntryEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM meal_entry ORDER BY timestampEpochMillis DESC LIMIT :limit")
+    abstract suspend fun getRecentMealsWithItems(
+        limit: Int,
+    ): List<MealEntryWithItems>
 
     @Transaction
     open suspend fun saveMealAndLoadMealsForDate(

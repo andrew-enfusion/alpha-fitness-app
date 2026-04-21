@@ -15,6 +15,7 @@ import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
 import com.andrewenfusion.alphafitness.domain.model.MealSourceType
 import com.andrewenfusion.alphafitness.domain.model.NutritionGuidance
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
 import com.andrewenfusion.alphafitness.domain.model.Sex
 import com.andrewenfusion.alphafitness.domain.model.UserProfile
 import com.andrewenfusion.alphafitness.domain.repository.DailyMetricsRepository
@@ -122,9 +123,9 @@ class ConfirmLogMealSaveUseCaseTest {
             date: LocalDate,
         ): AppResult<List<MealEntry>> = AppResult.Success(existingMealsForDate)
 
-        override suspend fun lookupLocalInterpretation(
-            description: String,
-        ): AppResult<LogMealReviewState?> = AppResult.Success(null)
+        override suspend fun getRecentSavedMeals(
+            limit: Int,
+        ): AppResult<List<SavedMealMemory>> = AppResult.Success(emptyList())
 
         override suspend fun interpretWithGateway(
             description: String,

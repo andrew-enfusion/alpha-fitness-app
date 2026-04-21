@@ -7,10 +7,12 @@ import com.andrewenfusion.alphafitness.core.database.dao.MealEntryDao
 import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
 import com.andrewenfusion.alphafitness.data.mapper.toDomain
 import com.andrewenfusion.alphafitness.data.mapper.toEntity
-import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
+import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
+import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
+import com.andrewenfusion.alphafitness.data.mapper.toSavedMealMemory
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.time.LocalDate
@@ -73,9 +75,25 @@ class RoomMealRepository @Inject constructor(
             )
         }
 
-    override suspend fun lookupLocalInterpretation(
-        description: String,
-    ): AppResult<LogMealReviewState?> = AppResult.Success(null)
+    override suspend fun getRecentSavedMeals(
+        limit: Int,
+    ): AppResult<List<SavedMealMemory>> =
+        withContext(dispatchers.io) {
+            runCatching {
+                mealEntryDao
+                    .getRecentMealsWithItems(limit)
+                    .map { mealWithItems -> mealWithItems.toSavedMealMemory() }
+            }.fold(
+                onSuccess = { meals -> AppResult.Success(meals) },
+                onFailure = { throwable ->
+                    AppResult.Failure(
+                        AppError.Storage(
+                            message = throwable.message ?: "Failed to load recent saved meals.",
+                        ),
+                    )
+                },
+            )
+        }
 
     override suspend fun interpretWithGateway(
         description: String,
