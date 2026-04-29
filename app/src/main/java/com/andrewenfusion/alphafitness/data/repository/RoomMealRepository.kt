@@ -4,12 +4,10 @@ import com.andrewenfusion.alphafitness.core.common.dispatcher.AppDispatchers
 import com.andrewenfusion.alphafitness.core.common.error.AppError
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.core.database.dao.MealEntryDao
-import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
 import com.andrewenfusion.alphafitness.data.mapper.toDomain
 import com.andrewenfusion.alphafitness.data.mapper.toEntity
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
-import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
 import com.andrewenfusion.alphafitness.data.mapper.toSavedMealMemory
@@ -24,7 +22,6 @@ import kotlinx.coroutines.withContext
 @Singleton
 class RoomMealRepository @Inject constructor(
     private val mealEntryDao: MealEntryDao,
-    private val logInterpretationGateway: LogInterpretationGateway,
     private val dispatchers: AppDispatchers,
 ) : MealRepository {
     override fun observeMeals(): Flow<List<MealEntry>> =
@@ -94,8 +91,4 @@ class RoomMealRepository @Inject constructor(
                 },
             )
         }
-
-    override suspend fun interpretWithGateway(
-        description: String,
-    ): AppResult<LogMealReviewState> = logInterpretationGateway.interpretMealDescription(description)
 }

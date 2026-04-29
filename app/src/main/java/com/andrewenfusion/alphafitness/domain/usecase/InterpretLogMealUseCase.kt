@@ -5,9 +5,11 @@ import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.core.config.LogClarificationConfig
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
 import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
+import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
 import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
 import com.andrewenfusion.alphafitness.domain.model.LogClarificationOption
 import com.andrewenfusion.alphafitness.domain.model.LogClarificationState
+import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationDraft
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.repository.MealRepository
@@ -16,6 +18,7 @@ import javax.inject.Inject
 
 class InterpretLogMealUseCase @Inject constructor(
     private val repository: MealRepository,
+    private val logInterpretationGateway: LogInterpretationGateway,
     private val localMealMemoryMatcher: LocalMealMemoryMatcher,
     private val localMealMemoryConfig: LocalMealMemoryConfig,
     private val logClarificationConfig: LogClarificationConfig,
@@ -59,17 +62,20 @@ class InterpretLogMealUseCase @Inject constructor(
                         ),
                     )
                 } else {
-                    when (val remoteResult = repository.interpretWithGateway(interpretationInput)) {
+                    when (val remoteResult = logInterpretationGateway.interpretMealDescription(interpretationInput)) {
                         is AppResult.Success -> {
-                            val remoteReview = remoteResult.value.copy(
+                            val remoteDraft = remoteResult.value.copy(
+                                reviewState = remoteResult.value.reviewState.copy(
                                 submittedText = normalizedOriginalDraft,
-                                assumptions = remoteResult.value.assumptions.withClarificationContext(normalizedClarificationAnswer),
-                                interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
+                                    assumptions = remoteResult.value.reviewState.assumptions
+                                        .withClarificationContext(normalizedClarificationAnswer),
+                                    interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
+                                ),
                             )
-                            mapRemoteReviewToOutputState(
+                            mapRemoteDraftToOutputState(
                                 originalSubmittedDraft = normalizedOriginalDraft,
                                 clarificationAnswer = normalizedClarificationAnswer,
-                                remoteReview = remoteReview,
+                                remoteDraft = remoteDraft,
                             )
                         }
                         is AppResult.Failure -> remoteResult
@@ -80,22 +86,21 @@ class InterpretLogMealUseCase @Inject constructor(
         }
     }
 
-    private fun mapRemoteReviewToOutputState(
+    private fun mapRemoteDraftToOutputState(
         originalSubmittedDraft: String,
         clarificationAnswer: String?,
-        remoteReview: LogMealReviewState,
+        remoteDraft: LogMealInterpretationDraft,
     ): AppResult<LogOutputState> {
-        val needsClarification = clarificationAnswer == null && shouldRequestClarification(
-            originalSubmittedDraft = originalSubmittedDraft,
-            remoteReview = remoteReview,
-        )
+        val remoteReview = remoteDraft.reviewState
+        val needsClarification = clarificationAnswer == null &&
+            shouldRequestClarification(remoteDraft)
 
         if (needsClarification) {
             return AppResult.Success(
                 LogOutputState.LowConfidence(
                     clarificationState = LogClarificationState(
                         originalSubmittedDraft = originalSubmittedDraft,
-                        question = buildClarificationQuestion(originalSubmittedDraft),
+                        question = remoteDraft.clarificationQuestion ?: buildClarificationQuestion(originalSubmittedDraft),
                         quickOptions = buildQuickOptions(originalSubmittedDraft),
                         partialReviewState = remoteReview,
                     ),
@@ -104,7 +109,7 @@ class InterpretLogMealUseCase @Inject constructor(
         }
 
         if (clarificationAnswer != null &&
-            remoteReview.items.isEmpty() &&
+            (remoteDraft.clarificationNeeded || remoteReview.items.isEmpty()) &&
             logClarificationConfig.maxClarificationRounds == 1
         ) {
             return AppResult.Failure(
@@ -128,21 +133,10 @@ class InterpretLogMealUseCase @Inject constructor(
     }
 
     private fun shouldRequestClarification(
-        originalSubmittedDraft: String,
-        remoteReview: LogMealReviewState,
-    ): Boolean {
-        val normalizedOriginalDraft = originalSubmittedDraft.lowercase()
-        val tokenCount = normalizedOriginalDraft
-            .split(" ", ",")
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .size
-
-        val containsGenericMealLanguage = genericMealTerms.any { it in normalizedOriginalDraft }
-        val isShortAndGeneric = tokenCount <= 2 && containsGenericMealLanguage
-
-        return isShortAndGeneric || remoteReview.confidence < logClarificationConfig.lowConfidenceThreshold
-    }
+        remoteDraft: LogMealInterpretationDraft,
+    ): Boolean =
+        remoteDraft.clarificationNeeded ||
+            remoteDraft.reviewState.confidence < logClarificationConfig.lowConfidenceThreshold
 
     private fun buildInterpretationInput(
         originalSubmittedDraft: String,
@@ -212,25 +206,7 @@ class InterpretLogMealUseCase @Inject constructor(
         } else {
             this + "Clarification was limited, so this draft remains a best-effort estimate."
         }
-
     private companion object {
-        val genericMealTerms = setOf(
-            "meal",
-            "food",
-            "stuff",
-            "something",
-            "snack",
-            "plate",
-            "bowl",
-            "sandwich",
-            "wrap",
-            "burger",
-            "burrito",
-            "pasta",
-            "salad",
-            "drink",
-        )
-
         val drinkTerms = setOf(
             "drink",
             "beverage",

@@ -1,6 +1,7 @@
 package com.andrewenfusion.alphafitness.data.gateway.log
 
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
+import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationDraft
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
@@ -10,7 +11,7 @@ import kotlin.math.roundToInt
 class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretationGateway {
     override suspend fun interpretMealDescription(
         description: String,
-    ): AppResult<LogMealReviewState> {
+    ): AppResult<LogMealInterpretationDraft> {
         val isLowConfidenceInput = isLowConfidenceInput(description)
         val parts = description
             .split(",", " and ")
@@ -23,23 +24,31 @@ class DevelopmentLogInterpretationGateway @Inject constructor() : LogInterpretat
         }
 
         return AppResult.Success(
-            LogMealReviewState(
-                submittedText = description,
-                interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
-                items = items,
-                assumptions = listOf(
-                    if (isLowConfidenceInput) {
-                        "Description was still broad, so this draft is a best-effort estimate."
+            LogMealInterpretationDraft(
+                reviewState = LogMealReviewState(
+                    submittedText = description,
+                    interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
+                    items = items,
+                    assumptions = listOf(
+                        if (isLowConfidenceInput) {
+                            "Description was still broad, so this draft is a best-effort estimate."
+                        } else {
+                            "Used a simple single-serving estimate for each described food."
+                        },
+                        "Restaurant or homemade preparation details were not confirmed in this slice.",
+                    ),
+                    requiresReview = true,
+                    confidence = if (isLowConfidenceInput) {
+                        0.48f
                     } else {
-                        "Used a simple single-serving estimate for each described food."
+                        0.72f
                     },
-                    "Restaurant or homemade preparation details were not confirmed in this slice.",
                 ),
-                requiresReview = true,
-                confidence = if (isLowConfidenceInput) {
-                    0.48f
+                clarificationNeeded = isLowConfidenceInput,
+                clarificationQuestion = if (isLowConfidenceInput) {
+                    "What was the main protein or style?"
                 } else {
-                    0.72f
+                    null
                 },
             ),
         )

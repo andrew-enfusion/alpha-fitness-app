@@ -126,12 +126,6 @@ class ConfirmLogMealSaveUseCaseTest {
         override suspend fun getRecentSavedMeals(
             limit: Int,
         ): AppResult<List<SavedMealMemory>> = AppResult.Success(emptyList())
-
-        override suspend fun interpretWithGateway(
-            description: String,
-        ): AppResult<LogMealReviewState> = AppResult.Failure(
-            AppError.Unsupported("Not used in this test."),
-        )
     }
 
     private class FakeDailyMetricsRepository : DailyMetricsRepository {

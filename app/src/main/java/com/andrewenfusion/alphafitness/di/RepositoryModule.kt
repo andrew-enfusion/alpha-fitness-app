@@ -2,8 +2,8 @@ package com.andrewenfusion.alphafitness.di
 
 import com.andrewenfusion.alphafitness.data.gateway.onboarding.ConfiguredOnboardingGuidanceGateway
 import com.andrewenfusion.alphafitness.data.gateway.onboarding.OnboardingGuidanceGateway
-import com.andrewenfusion.alphafitness.data.gateway.log.DevelopmentLogInterpretationGateway
 import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
+import com.andrewenfusion.alphafitness.data.gateway.log.OpenAiLogInterpretationGateway
 import com.andrewenfusion.alphafitness.data.repository.RoomDailyMetricsRepository
 import com.andrewenfusion.alphafitness.data.repository.RoomMealRepository
 import com.andrewenfusion.alphafitness.data.repository.RoomNutritionGuidanceRepository
@@ -24,7 +24,7 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindLogInterpretationGateway(
-        gateway: DevelopmentLogInterpretationGateway,
+        gateway: OpenAiLogInterpretationGateway,
     ): LogInterpretationGateway
 
     @Binds

@@ -4,7 +4,9 @@ import com.andrewenfusion.alphafitness.core.common.result.AppResult
 import com.andrewenfusion.alphafitness.core.config.LogClarificationConfig
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
 import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
+import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
 import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
+import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationDraft
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
@@ -59,6 +61,7 @@ class InterpretLogMealUseCaseTest {
         )
         val useCase = InterpretLogMealUseCase(
             repository = repository,
+            logInterpretationGateway = FakeLogInterpretationGateway(),
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
             localMealMemoryConfig = LocalMealMemoryConfig(),
             logClarificationConfig = LogClarificationConfig(),
@@ -83,10 +86,16 @@ class InterpretLogMealUseCaseTest {
             submittedText = "Chicken burrito bowl",
             source = LogMealInterpretationSource.AI_FALLBACK,
         )
+        val gateway = FakeLogInterpretationGateway(
+            draft = LogMealInterpretationDraft(
+                reviewState = gatewayReview,
+                clarificationNeeded = false,
+            ),
+        )
         val useCase = InterpretLogMealUseCase(
             repository = FakeMealRepository(
-                gatewayReview = gatewayReview,
             ),
+            logInterpretationGateway = gateway,
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
             localMealMemoryConfig = LocalMealMemoryConfig(),
             logClarificationConfig = LogClarificationConfig(),
@@ -107,10 +116,16 @@ class InterpretLogMealUseCaseTest {
     fun returnsLowConfidenceBeforeReviewReadyWhenGatewayDraftIsTooBroad() = runBlocking {
         val useCase = InterpretLogMealUseCase(
             repository = FakeMealRepository(
-                gatewayReview = sampleReview(
-                    submittedText = "sandwich",
-                    source = LogMealInterpretationSource.AI_FALLBACK,
-                    confidence = 0.48f,
+            ),
+            logInterpretationGateway = FakeLogInterpretationGateway(
+                draft = LogMealInterpretationDraft(
+                    reviewState = sampleReview(
+                        submittedText = "sandwich",
+                        source = LogMealInterpretationSource.AI_FALLBACK,
+                        confidence = 0.48f,
+                    ),
+                    clarificationNeeded = true,
+                    clarificationQuestion = "What was the main protein or style?",
                 ),
             ),
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
@@ -133,10 +148,15 @@ class InterpretLogMealUseCaseTest {
     fun clarificationAnswerProducesReviewReadyWithoutSecondClarificationCycle() = runBlocking {
         val useCase = InterpretLogMealUseCase(
             repository = FakeMealRepository(
-                gatewayReview = sampleReview(
-                    submittedText = "Chicken sandwich",
-                    source = LogMealInterpretationSource.AI_FALLBACK,
-                    confidence = 0.55f,
+            ),
+            logInterpretationGateway = FakeLogInterpretationGateway(
+                draft = LogMealInterpretationDraft(
+                    reviewState = sampleReview(
+                        submittedText = "Chicken sandwich",
+                        source = LogMealInterpretationSource.AI_FALLBACK,
+                        confidence = 0.55f,
+                    ),
+                    clarificationNeeded = false,
                 ),
             ),
             localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
@@ -190,14 +210,6 @@ class InterpretLogMealUseCaseTest {
 
     private class FakeMealRepository(
         private val savedMeals: List<SavedMealMemory> = emptyList(),
-        private val gatewayReview: LogMealReviewState = LogMealReviewState(
-            submittedText = "fallback",
-            interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
-            items = emptyList(),
-            assumptions = emptyList(),
-            requiresReview = true,
-            confidence = 0.5f,
-        ),
     ) : MealRepository {
         var requestedLimit: Int? = null
 
@@ -218,11 +230,28 @@ class InterpretLogMealUseCaseTest {
             requestedLimit = limit
             return AppResult.Success(savedMeals.take(limit))
         }
+    }
 
-        override suspend fun interpretWithGateway(
+    private class FakeLogInterpretationGateway(
+        private val draft: LogMealInterpretationDraft = LogMealInterpretationDraft(
+            reviewState = LogMealReviewState(
+                submittedText = "fallback",
+                interpretationSource = LogMealInterpretationSource.AI_FALLBACK,
+                items = emptyList(),
+                assumptions = emptyList(),
+                requiresReview = true,
+                confidence = 0.5f,
+            ),
+            clarificationNeeded = false,
+        ),
+    ) : LogInterpretationGateway {
+        override suspend fun interpretMealDescription(
             description: String,
-        ): AppResult<LogMealReviewState> = AppResult.Success(
-            gatewayReview.copy(submittedText = description),
-        )
+        ): AppResult<LogMealInterpretationDraft> =
+            AppResult.Success(
+                draft.copy(
+                    reviewState = draft.reviewState.copy(submittedText = description),
+                ),
+            )
     }
 }

@@ -1,7 +1,6 @@
 package com.andrewenfusion.alphafitness.domain.repository
 
 import com.andrewenfusion.alphafitness.core.common.result.AppResult
-import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
 import com.andrewenfusion.alphafitness.domain.model.MealEntry
 import com.andrewenfusion.alphafitness.domain.model.MealItem
 import com.andrewenfusion.alphafitness.domain.model.SavedMealMemory
@@ -23,8 +22,4 @@ interface MealRepository {
     suspend fun getRecentSavedMeals(
         limit: Int,
     ): AppResult<List<SavedMealMemory>>
-
-    suspend fun interpretWithGateway(
-        description: String,
-    ): AppResult<LogMealReviewState>
 }

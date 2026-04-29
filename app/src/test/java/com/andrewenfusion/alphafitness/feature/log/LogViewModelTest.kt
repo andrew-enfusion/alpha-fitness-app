@@ -5,8 +5,9 @@ import com.andrewenfusion.alphafitness.core.common.error.AppError
 import com.andrewenfusion.alphafitness.core.common.time.TimeProvider
 import com.andrewenfusion.alphafitness.core.config.LogClarificationConfig
 import com.andrewenfusion.alphafitness.core.config.LocalMealMemoryConfig
+import com.andrewenfusion.alphafitness.data.gateway.log.LogInterpretationGateway
 import com.andrewenfusion.alphafitness.domain.engine.LocalMealMemoryMatcher
-import com.andrewenfusion.alphafitness.domain.model.LogClarificationState
+import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationDraft
 import com.andrewenfusion.alphafitness.domain.model.LogMealInterpretationSource
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewItem
 import com.andrewenfusion.alphafitness.domain.model.LogMealReviewState
@@ -75,11 +76,12 @@ class LogViewModelTest {
     fun submitWithBroadDraftShowsLowConfidenceClarificationState() {
         val viewModel = createViewModel(
             mealRepository = FakeMealRepository(
-                interpretResults = mutableListOf(
+                gatewayResults = mutableListOf(
                     AppResult.Success(
-                        sampleReviewState(
+                        sampleDraft(
                             submittedText = "sandwich",
                             confidence = 0.48f,
+                            clarificationNeeded = true,
                         ),
                     ),
                 ),
@@ -100,9 +102,9 @@ class LogViewModelTest {
     @Test
     fun retryUsesOriginalSubmittedDraftAfterTimeoutFailure() {
         val mealRepository = FakeMealRepository(
-            interpretResults = mutableListOf(
+            gatewayResults = mutableListOf(
                 AppResult.Failure(AppError.AiTimeout()),
-                AppResult.Success(sampleReviewState("Chicken shawarma wrap")),
+                AppResult.Success(sampleDraft("Chicken shawarma wrap")),
             ),
         )
         val viewModel = createViewModel(
@@ -129,7 +131,7 @@ class LogViewModelTest {
     fun submitWithMalformedResultMapsToMalformedFailureState() {
         val viewModel = createViewModel(
             mealRepository = FakeMealRepository(
-                interpretResults = mutableListOf(
+                gatewayResults = mutableListOf(
                     AppResult.Failure(AppError.AiMalformedResponse()),
                 ),
             ),
@@ -144,15 +146,16 @@ class LogViewModelTest {
     @Test
     fun quickOptionClarificationUsesOriginalSubmittedDraftAndProducesReviewReadyState() {
         val mealRepository = FakeMealRepository(
-            interpretResults = mutableListOf(
+            gatewayResults = mutableListOf(
                 AppResult.Success(
-                    sampleReviewState(
+                    sampleDraft(
                         submittedText = "sandwich",
                         confidence = 0.48f,
+                        clarificationNeeded = true,
                     ),
                 ),
                 AppResult.Success(
-                    sampleReviewState(
+                    sampleDraft(
                         submittedText = "Chicken sandwich",
                         confidence = 0.55f,
                     ),
@@ -176,15 +179,16 @@ class LogViewModelTest {
     @Test
     fun textClarificationSubmitsWithoutOverwritingOriginalDraft() {
         val mealRepository = FakeMealRepository(
-            interpretResults = mutableListOf(
+            gatewayResults = mutableListOf(
                 AppResult.Success(
-                    sampleReviewState(
+                    sampleDraft(
                         submittedText = "sandwich",
                         confidence = 0.48f,
+                        clarificationNeeded = true,
                     ),
                 ),
                 AppResult.Success(
-                    sampleReviewState(
+                    sampleDraft(
                         submittedText = "Turkey sandwich",
                         confidence = 0.55f,
                     ),
@@ -243,6 +247,7 @@ class LogViewModelTest {
             prepareLogComposerSubmissionUseCase = PrepareLogComposerSubmissionUseCase(),
             interpretLogMealUseCase = InterpretLogMealUseCase(
                 repository = mealRepository,
+                logInterpretationGateway = mealRepository,
                 localMealMemoryMatcher = LocalMealMemoryMatcher(LocalMealMemoryConfig()),
                 localMealMemoryConfig = LocalMealMemoryConfig(),
                 logClarificationConfig = LogClarificationConfig(),
@@ -263,11 +268,11 @@ class LogViewModelTest {
         )
 
     private class FakeMealRepository(
-        private val interpretResults: MutableList<AppResult<LogMealReviewState>> = mutableListOf(
-            AppResult.Success(sampleReviewState("Chicken shawarma wrap")),
+        private val gatewayResults: MutableList<AppResult<LogMealInterpretationDraft>> = mutableListOf(
+            AppResult.Success(sampleDraft("Chicken shawarma wrap")),
         ),
         private val saveFailure: AppError? = null,
-    ) : MealRepository {
+    ) : MealRepository, LogInterpretationGateway {
         val interpretRequests: MutableList<String> = mutableListOf()
 
         override fun observeMeals(): Flow<List<MealEntry>> = flowOf(emptyList())
@@ -286,15 +291,19 @@ class LogViewModelTest {
             limit: Int,
         ): AppResult<List<SavedMealMemory>> = AppResult.Success(emptyList())
 
-        override suspend fun interpretWithGateway(
+        override suspend fun interpretMealDescription(
             description: String,
-        ): AppResult<LogMealReviewState> {
+        ): AppResult<LogMealInterpretationDraft> {
             interpretRequests += description
-            val nextResult = interpretResults.removeFirstOrNull()
-                ?: AppResult.Success(sampleReviewState(description))
+            val nextResult = gatewayResults.removeFirstOrNull()
+                ?: AppResult.Success(sampleDraft(description))
             return when (nextResult) {
                 is AppResult.Success -> AppResult.Success(
-                    nextResult.value.copy(submittedText = description),
+                    nextResult.value.copy(
+                        reviewState = nextResult.value.reviewState.copy(
+                            submittedText = description,
+                        ),
+                    ),
                 )
                 is AppResult.Failure -> nextResult
             }
@@ -373,6 +382,24 @@ class LogViewModelTest {
                 assumptions = listOf("Used a simple serving estimate."),
                 requiresReview = true,
                 confidence = confidence,
+            )
+
+        fun sampleDraft(
+            submittedText: String,
+            confidence: Float = 0.72f,
+            clarificationNeeded: Boolean = false,
+        ): LogMealInterpretationDraft =
+            LogMealInterpretationDraft(
+                reviewState = sampleReviewState(
+                    submittedText = submittedText,
+                    confidence = confidence,
+                ),
+                clarificationNeeded = clarificationNeeded,
+                clarificationQuestion = if (clarificationNeeded) {
+                    "What was the main protein or style?"
+                } else {
+                    null
+                },
             )
     }
 }
